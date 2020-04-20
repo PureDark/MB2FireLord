@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FireLord.FireLord
+namespace FireLord
 {
     public enum BoneIndex
     {

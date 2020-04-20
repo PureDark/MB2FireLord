@@ -1,12 +1,10 @@
-﻿using FireLord.FireLord.Settings;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using static FireLord.FireArrowLogic;
+using FireLord.Settings;
 
 namespace FireLord
 {
@@ -148,7 +146,7 @@ namespace FireLord
             {
                 if (FireArrowLogic.AgentFireDatas.ContainsKey(affectedAgent))
                 {
-                    AgentFireData fireData = FireArrowLogic.AgentFireDatas[affectedAgent];
+                    FireArrowLogic.AgentFireData fireData = FireArrowLogic.AgentFireDatas[affectedAgent];
                     if (!fireData.isBurning)
                     {
                         fireData.firebar += (isBlocked) ? FireLordConfig.IgnitionPerFireSwordHit/2 : FireLordConfig.IgnitionPerFireSwordHit;
@@ -157,7 +155,7 @@ namespace FireLord
                 }
                 else
                 {
-                    AgentFireData fireData = new AgentFireData();
+                    FireArrowLogic.AgentFireData fireData = new FireArrowLogic.AgentFireData();
                     fireData.firebar += (isBlocked) ? FireLordConfig.IgnitionPerFireSwordHit / 2 : FireLordConfig.IgnitionPerFireSwordHit;
                     fireData.attacker = affectorAgent;
                     FireArrowLogic.AgentFireDatas.Add(affectedAgent, fireData);

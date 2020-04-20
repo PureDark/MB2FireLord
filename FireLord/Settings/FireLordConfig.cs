@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 
-namespace FireLord.FireLord.Settings
+namespace FireLord.Settings
 {
     public static class FireLordConfig
     {

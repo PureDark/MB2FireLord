@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace FireLord
+namespace FireLord.Utils
 {
     public static class ReflectionUtil
     {

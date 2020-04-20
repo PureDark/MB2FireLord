@@ -1,11 +1,11 @@
-﻿using FireLord.FireLord.Settings;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using FireLord.Settings;
 
 namespace FireLord
 {

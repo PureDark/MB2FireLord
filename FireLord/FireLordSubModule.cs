@@ -1,8 +1,8 @@
-﻿using FireLord.FireLord.Settings;
-using ModLib;
+﻿using ModLib;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using FireLord.Settings;
 
 namespace FireLord
 {

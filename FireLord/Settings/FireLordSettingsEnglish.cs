@@ -3,7 +3,7 @@ using ModLib.Attributes;
 using System.Xml.Serialization;
 using TaleWorlds.InputSystem;
 
-namespace FireLord.FireLord.Settings
+namespace FireLord.Settings
 {
     public class FireLordSettingsEnglish : SettingsBase
     {

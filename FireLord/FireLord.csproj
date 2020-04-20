@@ -184,14 +184,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FireLord\BoneIndex.cs" />
-    <Compile Include="FireLord\Settings\FireLordConfig.cs" />
-    <Compile Include="FireLord\Settings\FireLordSettings.cs" />
-    <Compile Include="FireLord\Settings\FireLordSettingsEnglish.cs" />
-    <Compile Include="Utils\FileUtil.cs" />
-    <Compile Include="FireLord\FireSwordLogic.cs" />
-    <Compile Include="FireLord\FireArrowLogic.cs" />
-    <Compile Include="FireLord\FireLordSubModule.cs" />
+    <Compile Include="BoneIndex.cs" />
+    <Compile Include="Settings\FireLordConfig.cs" />
+    <Compile Include="Settings\FireLordSettings.cs" />
+    <Compile Include="Settings\FireLordSettingsEnglish.cs" />
+    <Compile Include="FireSwordLogic.cs" />
+    <Compile Include="FireArrowLogic.cs" />
+    <Compile Include="FireLordSubModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\IniHelper.cs" />
     <Compile Include="Utils\ReflectionUtil.cs" />
