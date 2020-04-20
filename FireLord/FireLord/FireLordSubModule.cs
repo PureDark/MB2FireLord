@@ -18,7 +18,6 @@ namespace FireLord
         {
             FireLordConfig.Init();
             FileDatabase.Initialise(ModuleName);
-            string language = BannerlordConfig.Language;
             BannerlordConfig.Initialize();
             if (BannerlordConfig.Language == "简体中文")
             {
@@ -45,12 +44,6 @@ namespace FireLord
         protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
             game.GameTextManager.LoadGameTexts(BasePath.Name + $"Modules/{ModuleName}/ModuleData/module_strings.xml");
-            SettingsDatabase.SaveSettings(_fireLordSettings);
-        }
-
-        public override void OnGameEnd(Game game)
-        {
-            SettingsDatabase.SaveSettings(_fireLordSettings);
         }
     }
 }
