@@ -15,6 +15,31 @@ namespace FireLord.Settings
         public static String ConfigPath = BasePath.Name + "Modules/" + FireLordSubModule.ModuleName + "/FireLordConfig.ini";
         public static IniHelper iniHelper = new IniHelper(ConfigPath, FireLordSubModule.ModName);
 
+        public enum UnitType
+        {
+            None = 0,
+            Player = 1,
+            Heroes = 2,
+            Companions = 3,
+            Allies = 4,
+            Enemies = 5,
+            All = 6
+        }
+
+        private static UnitType _allowedUnitType;
+        public static UnitType AllowedUnitType
+        {
+            get
+            {
+                return _allowedUnitType;
+            }
+            set
+            {
+                _allowedUnitType = value;
+                iniHelper.SetInt("AllowedUnitType", (int)value);
+            }
+        }
+
         private static bool _useFireArrowsAtDay;
         public static bool UseFireArrowsAtDay
         {
@@ -67,6 +92,20 @@ namespace FireLord.Settings
             {
                 _allowFireThrownWeapon = value;
                 iniHelper.SetBool("AllowFireThrownWeapon", value);
+            }
+        }
+
+        private static float _chancesOfFireArrow;
+        public static float ChancesOfFireArrow
+        {
+            get
+            {
+                return _chancesOfFireArrow;
+            }
+            set
+            {
+                _chancesOfFireArrow = value;
+                iniHelper.SetInt("ChancesOfFireArrow", (int)value);
             }
         }
 
@@ -139,6 +178,20 @@ namespace FireLord.Settings
             {
                 _fireSwordToggleKey = value;
                 iniHelper.Set("FireSwordToggleKey", value.ToString());
+            }
+        }
+
+        private static bool _ignitePlayerBody;
+        public static bool IgnitePlayerBody
+        {
+            get
+            {
+                return _ignitePlayerBody;
+            }
+            set
+            {
+                _ignitePlayerBody = value;
+                iniHelper.SetBool("IgnitePlayerBody", value);
             }
         }
 
@@ -360,15 +413,18 @@ namespace FireLord.Settings
         {
             if(!File.Exists(ConfigPath))
             {
+                AllowedUnitType = UnitType.All;
                 UseFireArrowsAtDay = true;
                 UseFireArrowsAtNight = true;
                 UseFireArrowsAtSiege = true;
                 AllowFireThrownWeapon = true;
+                ChancesOfFireArrow = 100;
                 StickedArrowsBurningTime = 8f;
                 FireArrowLightColor = new Vec3(0.847f, 0.541f, 0f);
                 FireArrowLightRadius = 3f;
                 FireArrowLightIntensity = 120f;
                 FireSwordToggleKey = InputKey.C;
+                IgnitePlayerBody = false;
                 FireSwordLightColor = new Vec3(0.847f, 0.541f, 0f);
                 FireSwordLightRadius = 5f;
                 FireSwordLightIntensity = 85f;
@@ -387,10 +443,12 @@ namespace FireLord.Settings
             }
             else
             {
+                _allowedUnitType = (UnitType)iniHelper.GetInt("AllowedUnitType", 6);
                 _useFireArrowsAtDay = iniHelper.GetBool("UseFireArrowsAtDay", true); ;
                 _useFireArrowsAtNight = iniHelper.GetBool("UseFireArrowsAtNight", true);
                 _useFireArrowsAtSiege = iniHelper.GetBool("UseFireArrowsAtSiege", true);
                 _allowFireThrownWeapon = iniHelper.GetBool("AllowFireThrownWeapon", true);
+                _chancesOfFireArrow = iniHelper.GetFloat("ChancesOfFireArrow", 100);
                 _stickedArrowsBurningTime = iniHelper.GetFloat("StickedArrowsBurningTime", 8);
                 float R = iniHelper.GetInt("FireArrowLightColorR", 216) / 255f;
                 float G = iniHelper.GetInt("FireArrowLightColorG", 138) / 255f;
@@ -399,6 +457,7 @@ namespace FireLord.Settings
                 _fireArrowLightRadius = iniHelper.GetFloat("FireArrowLightRadius", 3f);
                 _fireArrowLightIntensity = iniHelper.GetFloat("FireArrowLightIntensity", 120f);
                 _fireSwordToggleKey = (InputKey)Enum.Parse(typeof(InputKey), iniHelper.Get("FireSwordToggleKey", "C"));
+                _ignitePlayerBody = iniHelper.GetBool("IgnitePlayerBody", false);
                 R = iniHelper.GetInt("FireSwordLightColorR", 216) / 255f;
                 G = iniHelper.GetInt("FireSwordLightColorG", 138) / 255f;
                 B = iniHelper.GetInt("FireSwordLightColorB", 0) / 255f;

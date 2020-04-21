@@ -10,18 +10,27 @@ namespace FireLord.Settings
         public override string ModName => FireLordSubModule.ModName;
         public override string ModuleFolderName => FireLordSubModule.ModuleName;
 
-        public const string InstanceID = "FireLordSettings";
+        public const string InstanceID = "FireLordSettingsEnglish";
         [XmlElement]
         public override string ID { get; set; } = InstanceID;
 
-        public static FireLordSettings Instance
+        public static FireLordSettingsEnglish Instance
         {
-            get => (FireLordSettings)SettingsDatabase.GetSettings(InstanceID);
+            get => (FireLordSettingsEnglish)SettingsDatabase.GetSettings(InstanceID);
         }
 
+        [SettingPropertyGroup("Fire Arrow Misc")]
+        [SettingProperty("Fire Arrow Allowed Units", 0, 6, "What type of units are allowed to use fire arrows, 0=None, 1=Player, 2=Heroes, 3=Companions, 4=Allies, 5=Enemies, 6=All")]
         [XmlElement]
+        public int AllowedUnitType
+        {
+            get => (int)FireLordConfig.AllowedUnitType;
+            set => FireLordConfig.AllowedUnitType = (FireLordConfig.UnitType)value;
+        }
+
         [SettingPropertyGroup("Fire Arrow Misc")]
         [SettingProperty("Enable Fire Arrow At Day", "All units will use fire arrows during day time.")]
+        [XmlElement]
         public bool UseFireArrowsAtDay
         {
             get => FireLordConfig.UseFireArrowsAtDay;
@@ -47,12 +56,21 @@ namespace FireLord.Settings
         }
 
         [SettingPropertyGroup("Fire Arrow Misc")]
-        [SettingProperty("Thrown Weapon On Fire", "Whether to lit thrown weapons on fire as well.")]
+        [SettingProperty("Thrown Weapon On Fire", "Whether to light thrown weapons on fire as well.")]
         [XmlElement]
         public bool AllowFireThrownWeapon
         {
             get => FireLordConfig.AllowFireThrownWeapon;
             set => FireLordConfig.AllowFireThrownWeapon = value;
+        }
+
+        [SettingPropertyGroup("Fire Arrow Misc")]
+        [SettingProperty("Probability Of Fire Arrow", 0, 100, "Percent probability of shooting a fire arrow, does not affect the player.")]
+        [XmlElement]
+        public int ChancesOfFireArrow
+        {
+            get => (int)FireLordConfig.ChancesOfFireArrow;
+            set => FireLordConfig.ChancesOfFireArrow = value;
         }
 
         [SettingPropertyGroup("Fire Arrow Misc")]
@@ -92,6 +110,14 @@ namespace FireLord.Settings
             set => FireLordConfig.FireSwordToggleKey = (InputKey)value;
         }
 
+        [SettingPropertyGroup("Fire Sword Settings")]
+        [SettingProperty("Ignite Player Body (No Damage)", "Whether to light player's body when fire sword actived, only visuals and no damages.")]
+        [XmlElement]
+        public bool IgnitePlayerBody
+        {
+            get => FireLordConfig.IgnitePlayerBody;
+            set => FireLordConfig.IgnitePlayerBody = value;
+        }
 
         [SettingPropertyGroup("Fire Sword Settings")]
         [SettingProperty("Light Radius", 0, 20, "The radius of the point light attched to the sword.")]
@@ -215,14 +241,17 @@ namespace FireLord.Settings
 
         public void Init()
         {
+            AllowedUnitType = (int)FireLordConfig.AllowedUnitType;
             UseFireArrowsAtDay = FireLordConfig.UseFireArrowsAtDay;
             UseFireArrowsAtNight = FireLordConfig.UseFireArrowsAtNight;
-            UseFireArrowsAtSiege = FireLordConfig.UseFireArrowsAtDay;
+            UseFireArrowsAtSiege = FireLordConfig.UseFireArrowsAtSiege;
             AllowFireThrownWeapon = FireLordConfig.AllowFireThrownWeapon;
+            ChancesOfFireArrow = (int)FireLordConfig.ChancesOfFireArrow;
             StickedArrowsBurningTime = (int)FireLordConfig.StickedArrowsBurningTime;
             FireArrowLightRadius = (int)FireLordConfig.FireArrowLightRadius;
             FireArrowLightIntensity = (int)FireLordConfig.FireArrowLightIntensity;
             FireSwordToggleKey = (int)FireLordConfig.FireSwordToggleKey;
+            IgnitePlayerBody = FireLordConfig.IgnitePlayerBody;
             FireSwordLightRadius = (int)FireLordConfig.FireSwordLightRadius;
             FireSwordLightIntensity = (int)FireLordConfig.FireSwordLightIntensity;
             IgniteTargetWithFireArrow = FireLordConfig.IgniteTargetWithFireArrow;

@@ -19,9 +19,18 @@ namespace FireLord.Settings
             get => (FireLordSettings)SettingsDatabase.GetSettings(InstanceID);
         }
 
+        [SettingPropertyGroup("火箭综合设置")]
+        [SettingProperty("允许火箭的单位类型", 0, 6, "允许使用火箭的单位类型，0=不允许，1=玩家，2=英雄单位，3=NPC队友，4=己方，5=敌方，6=所有人")]
         [XmlElement]
+        public int AllowedUnitType
+        {
+            get => (int)FireLordConfig.AllowedUnitType;
+            set => FireLordConfig.AllowedUnitType = (FireLordConfig.UnitType)value;
+        }
+
         [SettingPropertyGroup("火箭综合设置")]
         [SettingProperty("白天使用火箭", "在白天的战斗中使用火焰箭")]
+        [XmlElement]
         public bool UseFireArrowsAtDay
         {
             get => FireLordConfig.UseFireArrowsAtDay;
@@ -53,6 +62,15 @@ namespace FireLord.Settings
         {
             get => FireLordConfig.AllowFireThrownWeapon;
             set => FireLordConfig.AllowFireThrownWeapon = value;
+        }
+
+        [SettingPropertyGroup("火箭综合设置")]
+        [SettingProperty("火箭发生概率", 0, 100, "弓箭手射箭时产生火箭的百分比概率，不影响玩家")]
+        [XmlElement]
+        public int ChancesOfFireArrow
+        {
+            get => (int)FireLordConfig.ChancesOfFireArrow;
+            set => FireLordConfig.ChancesOfFireArrow = value;
         }
 
         [SettingPropertyGroup("火箭综合设置")]
@@ -92,6 +110,14 @@ namespace FireLord.Settings
             set => FireLordConfig.FireSwordToggleKey = (InputKey)value;
         }
 
+        [SettingPropertyGroup("火焰剑设置")]
+        [SettingProperty("点燃玩家身体（无伤害））", "是否在开启火焰剑的同时点燃玩家的身体，只有视觉效果，不造成伤害")]
+        [XmlElement]
+        public bool IgnitePlayerBody
+        {
+            get => FireLordConfig.IgnitePlayerBody;
+            set => FireLordConfig.IgnitePlayerBody = value;
+        }
 
         [SettingPropertyGroup("火焰剑设置")]
         [SettingProperty("火焰剑光照范围", 0, 20, "火焰剑的光源照射的半径")]
@@ -215,10 +241,12 @@ namespace FireLord.Settings
 
         public void Init()
         {
+            AllowedUnitType = (int)FireLordConfig.AllowedUnitType;
             UseFireArrowsAtDay = FireLordConfig.UseFireArrowsAtDay;
             UseFireArrowsAtNight = FireLordConfig.UseFireArrowsAtNight;
-            UseFireArrowsAtSiege = FireLordConfig.UseFireArrowsAtDay;
+            UseFireArrowsAtSiege = FireLordConfig.UseFireArrowsAtSiege;
             AllowFireThrownWeapon = FireLordConfig.AllowFireThrownWeapon;
+            ChancesOfFireArrow = (int)FireLordConfig.ChancesOfFireArrow;
             StickedArrowsBurningTime = (int)FireLordConfig.StickedArrowsBurningTime;
             FireArrowLightRadius = (int)FireLordConfig.FireArrowLightRadius;
             FireArrowLightIntensity = (int)FireLordConfig.FireArrowLightIntensity;

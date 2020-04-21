@@ -54,6 +54,8 @@ namespace FireLord
                 int length = wieldedWeapon.GetWeaponStatsData()[0].WeaponLength;
                 int num = (int)Math.Round(length / 10f);
                 Skeleton skeleton = Agent.Main.AgentVisuals.GetSkeleton();
+                if (skeleton == null)
+                    return;
 
                 Light light = Light.CreatePointLight(FireLordConfig.FireSwordLightRadius);
                 light.Intensity = FireLordConfig.FireSwordLightIntensity;
@@ -94,6 +96,17 @@ namespace FireLord
                         return;
                 }
                 skeleton.AddComponentToBone(Game.Current.HumanMonster.MainHandItemBoneIndex, light);
+                if (FireLordConfig.IgnitePlayerBody)
+                {
+                    int count = skeleton.GetBoneCount();
+                    for (byte i = 0; i < count; i++)
+                    {
+                        MatrixFrame localFrame = new MatrixFrame(Mat3.Identity, new Vec3(0, 0, 0));
+                        ParticleSystem particle = ParticleSystem.CreateParticleSystemAttachedToEntity("psys_game_burning_agent",
+                            wieldedWeaponEntity, ref localFrame);
+                        skeleton.AddComponentToBone(i, particle);
+                    }
+                }
 
                 //只有通过扔掉再重新捡起这把武器，才能让粒子效果出现
                 DropLock = true;

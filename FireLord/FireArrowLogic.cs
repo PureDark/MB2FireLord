@@ -232,11 +232,21 @@ namespace FireLord
                     allowed = FireLordConfig.AllowFireThrownWeapon;
                     break;
             }
+
+            allowed &= (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.All) 
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Player && shooterAgent == Agent.Main)
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Heroes && shooterAgent.IsHero)
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Companions && shooterAgent.IsHero && shooterAgent.Team.IsPlayerTeam)
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.Team.IsPlayerAlly)
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Enemies && !shooterAgent.Team.IsPlayerAlly);
+
+            allowed &= shooterAgent== Agent.Main || MBRandom.RandomFloatRanged(100) < FireLordConfig.ChancesOfFireArrow;
+
             if (allowed)
             {
                 foreach (Mission.Missile missile in Mission.Current.Missiles)
                 {
-                    if (!_missileParticles.ContainsKey(missile))
+                    if (missile.ShooterAgent == shooterAgent && !_missileParticles.ContainsKey(missile))
                     {
                         MatrixFrame localFrame = new MatrixFrame(Mat3.Identity, new Vec3(0, 0, 0));
                         ParticleSystem particle = ParticleSystem.CreateParticleSystemAttachedToEntity(
@@ -246,6 +256,7 @@ namespace FireLord
                         light.LightColor = FireLordConfig.FireArrowLightColor;
                         missile.Entity.AddLight(light);
                         _missileParticles.Add(missile, particle);
+                        break;
                     }
                 }
             }
