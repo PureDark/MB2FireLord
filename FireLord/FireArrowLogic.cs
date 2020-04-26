@@ -76,7 +76,7 @@ namespace FireLord
                             GameEntity entity = item.bigFireParticle.GetEntity();
                             if (entity != null)
                             {
-                                entity.GetLight().Intensity = FireLordConfig.FireArrowLightIntensity - 35;
+                                entity.GetLight().Intensity = Math.Max(FireLordConfig.FireArrowLightIntensity - 35, 0);
                                 entity.RemoveComponent(item.bigFireParticle);
                             }
                         }
@@ -138,9 +138,13 @@ namespace FireLord
                                 if (fireData.fireLight != null)
                                 {
                                     fireData.fireLight.Intensity = 0;
-                                    Skeleton skeleton = agent.AgentVisuals.GetSkeleton();
-                                    if (skeleton != null)
-                                        skeleton.RemoveComponent(fireData.fireLight);
+                                    MBAgentVisuals agentVisuals = agent.AgentVisuals;
+                                    if(agentVisuals != null)
+                                    {
+                                        Skeleton skeleton = agentVisuals.GetSkeleton();
+                                        if (skeleton != null)
+                                            skeleton.RemoveComponent(fireData.fireLight);
+                                    }
                                 }
                                 fireData.fireEntity = null;
                                 fireData.fireLight = null;
@@ -160,9 +164,10 @@ namespace FireLord
                             if (index == EquipmentIndex.None)
                                 return;
                             GameEntity wieldedWeaponEntity = agent.GetWeaponEntityFromEquipmentSlot(index);
-                            Skeleton skeleton = agent.AgentVisuals.GetSkeleton();
-                            if (skeleton == null)
+                            MBAgentVisuals agentVisuals = agent.AgentVisuals;
+                            if (agentVisuals == null)
                                 return;
+                            Skeleton skeleton = agentVisuals.GetSkeleton();
                             fireData.particles = new ParticleSystem[_ignitionBoneIndexes.Length];
                             for (byte i = 0; i < _ignitionBoneIndexes.Length; i++)
                             {
@@ -174,12 +179,13 @@ namespace FireLord
                             }
 
                             //只有通过扔掉再重新捡起这把武器，才能让粒子效果出现
-                            FireSwordLogic.DropLock = true;
+                            FireSwordLogic.SetDropLockForAgent(agent, true);
                             agent.DropItem(index);
                             SpawnedItemEntity spawnedItemEntity = wieldedWeaponEntity.GetFirstScriptOfType<SpawnedItemEntity>();
-                            agent.OnItemPickup(spawnedItemEntity, EquipmentIndex.None, out bool removeItem);
+                            if(spawnedItemEntity != null)
+                                agent.OnItemPickup(spawnedItemEntity, EquipmentIndex.None, out bool removeItem);
                             fireData.fireEntity = wieldedWeaponEntity;
-                            FireSwordLogic.DropLock = false;
+                            FireSwordLogic.SetDropLockForAgent(agent, false);
 
                             Light light = Light.CreatePointLight(FireLordConfig.IgnitionLightRadius);
                             light.Intensity = FireLordConfig.IgnitionLightIntensity;
@@ -203,9 +209,13 @@ namespace FireLord
                     GameEntity entity = fireData.fireEntity;
                     if(entity!=null)
                         entity.RemoveAllParticleSystems();
-                    Skeleton skeleton = agent.AgentVisuals.GetSkeleton();
-                    if (skeleton != null && fireData.fireLight != null)
-                        skeleton.RemoveComponent(fireData.fireLight);
+                    MBAgentVisuals agentVisuals = agent.AgentVisuals;
+                    if (agentVisuals != null)
+                    {
+                        Skeleton skeleton = agentVisuals.GetSkeleton();
+                        if (skeleton != null && fireData.fireLight != null)
+                            skeleton.RemoveComponent(fireData.fireLight);
+                    }
                     AgentFireDatas.Remove(agent);
                 }
             }
@@ -240,7 +250,7 @@ namespace FireLord
                 || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.Team.IsPlayerAlly)
                 || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Enemies && !shooterAgent.Team.IsPlayerAlly);
 
-            allowed &= shooterAgent== Agent.Main || MBRandom.RandomFloatRanged(100) < FireLordConfig.ChancesOfFireArrow;
+            allowed &= shooterAgent == Agent.Main || MBRandom.RandomFloatRanged(100) < FireLordConfig.ChancesOfFireArrow;
 
             if (allowed)
             {
@@ -308,23 +318,27 @@ namespace FireLord
                     _hitArrowFires.Add(fireData);
                 }
 
+                //下面是点燃敌人的逻辑
                 if(FireLordConfig.IgniteTargetWithFireArrow && victim != null && victim.IsHuman)
                 {
-                    if (AgentFireDatas.ContainsKey(victim))
+                    if (FireLordConfig.IgnitionFriendlyFire || attacker.IsEnemyOf(victim))
                     {
-                        AgentFireData fireData = AgentFireDatas[victim];
-                        if (!fireData.isBurning)
+                        if (AgentFireDatas.ContainsKey(victim))
                         {
+                            AgentFireData fireData = AgentFireDatas[victim];
+                            if (!fireData.isBurning)
+                            {
+                                fireData.firebar += FireLordConfig.IgnitionPerFireArrow;
+                                fireData.attacker = attacker;
+                            }
+                        }
+                        else
+                        {
+                            AgentFireData fireData = new AgentFireData();
                             fireData.firebar += FireLordConfig.IgnitionPerFireArrow;
                             fireData.attacker = attacker;
+                            AgentFireDatas.Add(victim, fireData);
                         }
-                    }
-                    else
-                    {
-                        AgentFireData fireData = new AgentFireData();
-                        fireData.firebar += FireLordConfig.IgnitionPerFireArrow;
-                        fireData.attacker = attacker;
-                        AgentFireDatas.Add(victim, fireData);
                     }
                 }
             }
@@ -332,33 +346,17 @@ namespace FireLord
         }
 
         private Blow CreateBlow(Agent attacker, Agent victim)
-        {
-            Blow blow = new Blow(attacker.Index);
-            blow.VictimBodyPart = BoneBodyPartType.None;
-            blow.AttackType = AgentAttackType.Standard;
-            blow.WeaponRecord = default(BlowWeaponRecord);
-            blow.WeaponRecord.WeaponFlags = (blow.WeaponRecord.WeaponFlags | (WeaponFlags.AffectsArea | WeaponFlags.Burning));
-            blow.MissileRecord.IsValid = true;
-            blow.MissileRecord.CurrentPosition = blow.Position;
-            blow.MissileRecord.MissileItemKind = 67109974;
-            blow.MissileRecord.StartingPosition = blow.Position;
-            blow.MissileRecord.WeaponFlags = blow.WeaponRecord.WeaponFlags;
-            blow.StrikeType = StrikeType.Invalid;
+        {   Blow blow = new Blow(attacker.Index);
             blow.DamageType = DamageTypes.Blunt;
-            blow.NoIgnore = false;
-            blow.AttackerStunPeriod = 0;
-            blow.DefenderStunPeriod = 0;
-            blow.BlowFlag = BlowFlags.ShrugOff;
-            blow.BlowFlag |= BlowFlags.NoSound;
-            blow.Position = victim.GetEyeGlobalPosition();
-            blow.BoneIndex = 0;
-            blow.Direction = victim.LookDirection;
-            blow.SwingDirection = victim.LookDirection;
+            blow.BoneIndex = victim.Monster.HeadLookDirectionBoneIndex;
+            blow.Position = victim.Position;
+            blow.Position.z = blow.Position.z + victim.GetEyeGlobalHeight();
             blow.BaseMagnitude = 0;
-            blow.MovementSpeedDamageModifier = 1;
+            blow.WeaponRecord.FillWith(null, -1, -1);
             blow.InflictedDamage = FireLordConfig.IgnitionDamagePerSecond;
-            blow.SelfInflictedDamage = 0;
-            blow.AbsorbedByArmor = 0;
+            blow.SwingDirection = victim.LookDirection;
+            blow.SwingDirection.Normalize();
+            blow.Direction = blow.SwingDirection;
             blow.DamageCalculated = true;
             return blow;
         }
