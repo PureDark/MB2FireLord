@@ -1,10 +1,6 @@
 ﻿using FireLord.Utils;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 
@@ -395,6 +391,20 @@ namespace FireLord.Settings
             }
         }
 
+        private static bool _ignitionFriendlyFire;
+        public static bool IgnitionFriendlyFire
+        {
+            get
+            {
+                return _ignitionFriendlyFire;
+            }
+            set
+            {
+                _ignitionFriendlyFire = value;
+                iniHelper.SetBool("IgnitionFriendlyFire", value);
+            }
+        }
+
         private static int _ignitionDamagePerSecond;
         public static int IgnitionDamagePerSecond
         {
@@ -439,6 +449,7 @@ namespace FireLord.Settings
                 IgnitionLightRadius = 7f;
                 IgnitionLightIntensity = 125f;
                 IgnitionDealDamage = true;
+                IgnitionFriendlyFire = false;
                 IgnitionDamagePerSecond = 10;
             }
             else
@@ -478,6 +489,7 @@ namespace FireLord.Settings
                 _ignitionLightRadius = iniHelper.GetFloat("IgnitionLightRadius", 7f);
                 _ignitionLightIntensity = iniHelper.GetFloat("IgnitionLightIntensity", 125f);
                 _ignitionDealDamage = iniHelper.GetBool("IgnitionDealDamage", true);
+                _ignitionFriendlyFire = iniHelper.GetBool("IgnitionFriendlyFire", true);
                 _ignitionDamagePerSecond = iniHelper.GetInt("IgnitionDamagePerSecond", 10);
             }
         }

@@ -30,8 +30,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ModLib">
-      <HintPath>..\..\..\..\..\ModLib\bin\Win64_Shipping_Client\ModLib.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.0.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Harmony.2.0.0.10\lib\net472\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="MBOptionScreen, Version=1.1.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bannerlord.MBOptionScreen.1.1.15\lib\net472\MBOptionScreen.dll</HintPath>
     </Reference>
     <Reference Include="StoryMode">
       <HintPath>..\..\..\..\..\StoryMode\bin\Win64_Shipping_Client\StoryMode.dll</HintPath>
@@ -47,6 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -195,8 +199,12 @@
     <Compile Include="Utils\IniHelper.cs" />
     <Compile Include="Utils\ReflectionUtil.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy ".\FireLord.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"</PostBuildEvent>
+    <PostBuildEvent>copy ".\FireLord.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"
+copy ".\MBOptionScreen.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"</PostBuildEvent>
   </PropertyGroup>
 </Project>
