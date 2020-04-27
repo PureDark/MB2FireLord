@@ -11,6 +11,11 @@ namespace FireLord
 {
     class FireSwordLogic : MissionLogic
     {
+        private static bool _playerFireSwordEnabled = false;
+
+        private IgnitionLogic _ignitionlogic;
+
+        private Dictionary<Agent, AgentFireSwordData> _agentFireSwordData = new Dictionary<Agent, AgentFireSwordData>();
 
         public class AgentFireSwordData
         {
@@ -28,11 +33,13 @@ namespace FireLord
                     return;
                 MissionWeapon wieldedWeapon = agent.WieldedWeapon;
                 MissionWeapon wieldedOffHandWeapon = agent.WieldedOffhandWeapon;
-
                 // 判断是否是抽出新武器
                 if(lastWieldedWeaponEmpty && !wieldedWeapon.Weapons.IsEmpty())
                 {
-                    timer = new MissionTimer(0.1f);
+                    if (agent != Agent.Main || _playerFireSwordEnabled)
+                    {
+                        timer = new MissionTimer(0.1f);
+                    }
                 }
                 else
                 {
@@ -131,8 +138,8 @@ namespace FireLord
                     dropLock = false;
 
                     this.light = light;
-                    this.entity = wieldedWeaponEntity;
-                    this.enabled = true;
+                    entity = wieldedWeaponEntity;
+                    enabled = true;
                 }
                 else
                 {
@@ -144,7 +151,7 @@ namespace FireLord
                         if(agentVisuals != null)
                         {
                             Skeleton skeleton = agentVisuals.GetSkeleton();
-                            if (light != null && agentVisuals != null && agentVisuals.GetSkeleton() != null)
+                            if (light != null && skeleton != null)
                                 skeleton.RemoveComponent(light);
                         }
                         entity.RemoveAllParticleSystems();
@@ -153,15 +160,14 @@ namespace FireLord
             }
 
         }
-
-        private static Dictionary<Agent, AgentFireSwordData> _agentFireSwordData = new Dictionary<Agent, AgentFireSwordData>();
-
-        public override void OnRemoveBehaviour()
+        
+        public FireSwordLogic(IgnitionLogic ignitionlogic)
         {
-            _agentFireSwordData = new Dictionary<Agent, AgentFireSwordData>();
+            _ignitionlogic = ignitionlogic;
+            _ignitionlogic.OnAgentDropItem += SetDropLockForAgent;
         }
 
-        public static void SetDropLockForAgent(Agent agent, bool dropLock)
+        public void SetDropLockForAgent(Agent agent, bool dropLock)
         {
             _agentFireSwordData.TryGetValue(agent, out AgentFireSwordData fireSwordData);
             if (fireSwordData != null)
@@ -180,7 +186,10 @@ namespace FireLord
                 agent.OnAgentWieldedItemChange += agentFireSwordData.OnAgentWieldedItemChange;
                 agent.OnAgentHealthChanged += agentFireSwordData.OnAgentHealthChanged;
                 agentFireSwordData.lastWieldedWeaponEmpty = agent.WieldedWeapon.Weapons.IsEmpty();
-                agentFireSwordData.timer = new MissionTimer(0.5f);
+                if (agent != Agent.Main || _playerFireSwordEnabled)
+                {
+                    agentFireSwordData.timer = new MissionTimer(0.5f);
+                }
                 _agentFireSwordData.Add(agent, agentFireSwordData);
             }
         }
@@ -201,38 +210,25 @@ namespace FireLord
                     fireSwordData.SetFireSwordEnable(true);
                     fireSwordData.timer = null;
                 }
+                else if(item.Key == Agent.Main && Input.IsKeyPressed(FireLordConfig.FireSwordToggleKey))
+                {
+                    _playerFireSwordEnabled = !_playerFireSwordEnabled;
+                    fireSwordData.SetFireSwordEnable(_playerFireSwordEnabled);
+                    fireSwordData.timer = null;
+                }
             }
-
-            //if (Input.IsKeyPressed(FireLordConfig.FireSwordToggleKey))
-            //{
-            //    SetFireSwordEnable(!_fireSwordEnabled);
-            //}
         }
 
-        public override void OnScoreHit(Agent affectedAgent, Agent affectorAgent, int affectorWeaponKind, bool isBlocked, float damage, float movementSpeedDamageModifier, float hitDistance, AgentAttackType attackType, float shotDifficulty, int weaponCurrentUsageIndex)
+        public override void OnScoreHit(Agent victim, Agent attacker, int affectorWeaponKind, bool isBlocked, float damage, float movementSpeedDamageModifier, float hitDistance, AgentAttackType attackType, float shotDifficulty, int weaponCurrentUsageIndex)
         {
-            _agentFireSwordData.TryGetValue(affectorAgent, out AgentFireSwordData fireSwordData);
+            _agentFireSwordData.TryGetValue(attacker, out AgentFireSwordData fireSwordData);
             if (fireSwordData == null)
                 return;
             if (FireLordConfig.IgniteTargetWithFireSword &&
-                fireSwordData.enabled && affectedAgent != null && affectedAgent.IsHuman)
+                fireSwordData.enabled && victim != null && victim.IsHuman)
             {
-                if (FireArrowLogic.AgentFireDatas.ContainsKey(affectedAgent))
-                {
-                    FireArrowLogic.AgentFireData fireData = FireArrowLogic.AgentFireDatas[affectedAgent];
-                    if (!fireData.isBurning)
-                    {
-                        fireData.firebar += (isBlocked) ? FireLordConfig.IgnitionPerFireSwordHit/2 : FireLordConfig.IgnitionPerFireSwordHit;
-                        fireData.attacker = affectorAgent;
-                    }
-                }
-                else
-                {
-                    FireArrowLogic.AgentFireData fireData = new FireArrowLogic.AgentFireData();
-                    fireData.firebar += (isBlocked) ? FireLordConfig.IgnitionPerFireSwordHit / 2 : FireLordConfig.IgnitionPerFireSwordHit;
-                    fireData.attacker = affectorAgent;
-                    FireArrowLogic.AgentFireDatas.Add(affectedAgent, fireData);
-                }
+                float firebarAdd = (isBlocked) ? FireLordConfig.IgnitionPerFireSwordHit / 2f : FireLordConfig.IgnitionPerFireSwordHit;
+                _ignitionlogic.IncreaseAgentFireBar(attacker, victim, firebarAdd);
             }
         }
 

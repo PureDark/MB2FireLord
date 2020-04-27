@@ -11,20 +11,33 @@ namespace FireLord
         public static string ModuleName => "FireLord";
         public static string Version => "1.1.0";
 
+        public static Timer LoadSettingsTimer;
+
         protected override void OnSubModuleLoad()
         {
-            FireLordConfig.Init();
+        }
+
+        protected override void OnApplicationTick(float dt)
+        {
+            if(LoadSettingsTimer != null && LoadSettingsTimer.Check(MBCommon.GetTime(MBCommon.TimeType.Application)))
+            {
+                LoadSettingsTimer = null;
+                FireLordSettings.Instance.Load();
+            }
         }
 
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
-            mission.AddMissionBehaviour(new FireArrowLogic());
-            mission.AddMissionBehaviour(new FireSwordLogic());
+            FireLordSettings.Instance.Save();
+            IgnitionLogic ignitionLogic = new IgnitionLogic();
+            mission.AddMissionBehaviour(ignitionLogic);
+            mission.AddMissionBehaviour(new FireArrowLogic(ignitionLogic));
+            mission.AddMissionBehaviour(new FireSwordLogic(ignitionLogic));
         }
 
         protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
-            game.GameTextManager.LoadGameTexts(BasePath.Name + $"Modules/{ModuleName}/ModuleData/module_strings.xml");
+            game.GameTextManager.LoadGameTexts($"{BasePath.Name}/Modules/{ModuleName}/ModuleData/module_strings.xml");
         }
     }
 }

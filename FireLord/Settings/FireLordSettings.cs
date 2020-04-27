@@ -1,6 +1,13 @@
 ﻿using MBOptionScreen.Attributes;
+using MBOptionScreen.Attributes.v2;
+using MBOptionScreen.Data;
 using MBOptionScreen.Settings;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using TaleWorlds.Core;
 using TaleWorlds.InputSystem;
+using TaleWorlds.MountAndBlade;
 
 namespace FireLord.Settings
 {
@@ -8,267 +15,322 @@ namespace FireLord.Settings
     {
         public const string InstanceID = "FireLordSettings";
         public override string Id { get; set; } = InstanceID;
-        public override string ModName => "{=FireLord_mod_name}火焰领主";
+        public override string ModName => "Fire Lord";
         public override string ModuleFolderName => FireLordSubModule.ModuleName;
 
-        //private DefaultDropdown<FireLordConfig.UnitType> _allowedUnitType = new DefaultDropdown<FireLordConfig.UnitType>(new FireLordConfig.UnitType[]
-        //{
-        //    FireLordConfig.UnitType.None,
-        //    FireLordConfig.UnitType.Player,
-        //    FireLordConfig.UnitType.Heroes,
-        //    FireLordConfig.UnitType.Companions,
-        //    FireLordConfig.UnitType.Allies,
-        //    FireLordConfig.UnitType.Enemies,
-        //    FireLordConfig.UnitType.All
-        //}, (int)FireLordConfig.AllowedUnitType);
-        //[SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        //[SettingPropertyDropdown("{=FireLord_menu_allowed_unit_type}允许使用火箭的单位")]
-        //public DefaultDropdown<FireLordConfig.UnitType> AllowedUnitType
-        //{
-        //    get => _allowedUnitType;
-        //    set {
-        //        _allowedUnitType = value;
-        //        FireLordConfig.AllowedUnitType = _allowedUnitType.SelectedValue;
-        //    }
-        //}
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_allowed_unit_type}允许使用火箭的单位", 0, 6, requireRestart: false,
-            hintText: "{=FireLord_menu_allowed_unit_type_hint}允许使用火箭的单位类型，0=不允许，1=玩家，2=英雄单位，3=NPC队友，4=己方，5=敌方，6=所有人")]
-        public int AllowedUnitType
+        private DefaultDropdown<InputKey> _fireArrowToggleKey = GetDropdownOptions<InputKey>((int)InputKey.V);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_arrow_toggle_key}Toggle Key", Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_toggle_key_hint}Key to toggle fire arrows.")]
+        public DefaultDropdown<InputKey> FireArrowToggleKey
         {
-            get => (int)FireLordConfig.AllowedUnitType;
-            set => FireLordConfig.AllowedUnitType = (FireLordConfig.UnitType)value;
+            get => _fireArrowToggleKey;
+            set
+            {
+                _fireArrowToggleKey = value;
+                FireLordConfig.FireArrowToggleKey = value.SelectedValue;
+            }
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_use_fire_arrow_at_day}白天使用火箭", requireRestart: false,
-            hintText: "{=FireLord_menu_use_fire_arrow_at_day_hint}在白天的战斗中使用火焰箭")]
-        public bool UseFireArrowsAtDay
+        private DefaultDropdown<FireLordConfig.UnitType> _allowedUnitType = GetDropdownOptions<FireLordConfig.UnitType>((int)FireLordConfig.AllowedUnitType);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyDropdown("{=FireLord_menu_allowed_unit_type}Fire Arrow Allowed Units", Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_allowed_unit_type_hint}What type of units are allowed to use fire arrows.")]
+        public DefaultDropdown<FireLordConfig.UnitType> AllowedUnitType
         {
-            get => FireLordConfig.UseFireArrowsAtDay;
-            set => FireLordConfig.UseFireArrowsAtDay = value;
+            get => _allowedUnitType;
+            set
+            {
+                _allowedUnitType = value;
+                FireLordConfig.AllowedUnitType = value.SelectedValue;
+            }
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_use_fire_arrow_at_night}夜晚使用火箭", requireRestart: false,
-            hintText: "{=FireLord_menu_use_fire_arrow_at_night_hint}在夜晚的战斗中使用火焰箭")]
-        public bool UseFireArrowsAtNight
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_start}Fire Arrow Allowed Time Start", 0, 24, Order = 3, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_allowed_time_start_hint}Starting hour of fire arrow allowed time interval. E.g. Start=6 and End=18 for enabling at day.")]
+        public int FireArrowAllowedTimeStart
         {
-            get => FireLordConfig.UseFireArrowsAtNight;
-            set => FireLordConfig.UseFireArrowsAtNight = value;
+            get => FireLordConfig.FireArrowAllowedTimeStart;
+            set => FireLordConfig.FireArrowAllowedTimeStart = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_use_fire_arrow_at_siege}围城使用火箭", requireRestart: false,
-            hintText: "{=FireLord_menu_use_fire_arrow_at_siege_hint}在围城的战斗中使用火焰箭")]
-        public bool UseFireArrowsAtSiege
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_end}Fire Arrow Allowed Time End", 0, 24, Order = 4, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_allowed_time_end_hint}Ending hour of fire arrow allowed time interval. E.g. Start=20 and End=6 for enabling at night.")]
+        public int FireArrowAllowedTimeEnd
         {
-            get => FireLordConfig.UseFireArrowsAtSiege;
-            set => FireLordConfig.UseFireArrowsAtSiege = value;
+            get => FireLordConfig.FireArrowAllowedTimeEnd;
+            set => FireLordConfig.FireArrowAllowedTimeEnd = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_allow_fire_thrown_weapon}投掷武器点燃", requireRestart: false,
-            hintText: "{=FireLord_menu_allow_fire_thrown_weapon_hint}是否让投掷武器也拥有燃烧效果")]
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyBool("{=FireLord_menu_use_fire_arrow_only_in_siege}Enable Fire Arrow Only In Siege", Order = 5, RequireRestart = false,
+            HintText = "{=FireLord_menu_use_fire_arrow_only_in_siege_hint}Only allow units to use fire arrows in a siege battle.")]
+        public bool UseFireArrowsOnlyInSiege
+        {
+            get => FireLordConfig.UseFireArrowsOnlyInSiege;
+            set => FireLordConfig.UseFireArrowsOnlyInSiege = value;
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyBool("{=FireLord_menu_allow_fire_thrown_weapon}Thrown Weapon On Fire", Order = 6, RequireRestart = false,
+            HintText = "{=FireLord_menu_allow_fire_thrown_weapon_hint}Whether to light thrown weapons on fire as well.")]
         public bool AllowFireThrownWeapon
         {
             get => FireLordConfig.AllowFireThrownWeapon;
             set => FireLordConfig.AllowFireThrownWeapon = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_chances_of_fire_arrow}火箭发生概率", 0, 100, requireRestart: false,
-            hintText: "{=FireLord_menu_chances_of_fire_arrow_hint}弓箭手射箭时产生火箭的百分比概率，不影响玩家")]
-        public int ChancesOfFireArrow
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_numerical}Numerical Setup", Order = 2)]
+        [SettingPropertyFloatingInteger("{=FireLord_menu_chances_of_fire_arrow}Probability Of Fire Arrow", 0, 1, "0%", Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_chances_of_fire_arrow_hint}Percent probability of shooting a fire arrow, does not affect the player.")]
+        public float ChancesOfFireArrow
         {
-            get => (int)FireLordConfig.ChancesOfFireArrow;
-            set => FireLordConfig.ChancesOfFireArrow = value;
+            get => FireLordConfig.ChancesOfFireArrow/100f;
+            set => FireLordConfig.ChancesOfFireArrow = value*100;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_misc}火箭综合设置")]
-        [SettingProperty("{=FireLord_menu_sticked_arrow_burning_time}火焰残留时间", 0, 20, requireRestart: false,
-            hintText: "{=FireLord_menu_sticked_arrow_burning_time_hint}火箭射中后继续燃烧的时间，这段时间内火焰会逐渐熄灭")]
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_numerical}Numerical Setup", Order = 2)]
+        [SettingPropertyInteger("{=FireLord_menu_sticked_arrow_burning_time}Sticked Arrow Burning Time", 0, 20, "0s", Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_sticked_arrow_burning_time_hint}For how long should sticked arrow's  fire remains before it goes out.")]
         public int StickedArrowsBurningTime
         {
             get => (int)FireLordConfig.StickedArrowsBurningTime;
             set => FireLordConfig.StickedArrowsBurningTime = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_lights}火箭光照设置")]
-        [SettingProperty("{=FireLord_menu_fire_arrow_light_radius}火箭光照范围", 0, 20, requireRestart: false,
-            hintText: "{=FireLord_menu_fire_arrow_light_radius_hint}火箭的光源照射的半径")]
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_lights}Lights", Order = 3)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_light_radius}Light Radius", 0, 20, Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_light_radius_hint}The radius of the point light attched to the arrow.")]
         public int FireArrowLightRadius
         {
             get => (int)FireLordConfig.FireArrowLightRadius;
             set => FireLordConfig.FireArrowLightRadius = value;
         }
-        
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_lights}火箭光照设置")]
-        [SettingProperty("{=FireLord_menu_fire_arrow_light_intensity}火箭光照强度", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_fire_arrow_light_intensity_hint}火箭的光源强度，决定亮度")]
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_lights}Lights", Order = 3)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_light_intensity}Light Intensity", 0, 200, Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_light_intensity_hint}The lighting intensity of the point light attched to the arrow.")]
         public int FireArrowLightIntensity
         {
             get => (int)FireLordConfig.FireArrowLightIntensity;
             set => FireLordConfig.FireArrowLightIntensity = value;
         }
-        
-        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}火焰剑设置")]
-        [SettingProperty("{=FireLord_menu_fire_sword_toggle_key}火焰剑切换键", 0, 255, requireRestart: false,
-            hintText: "{=FireLord_menu_fire_sword_toggle_key_hint}开启/关闭 火焰剑的热键，菜单暂时不支持下拉框，最好不要修改，可以在FireLordConfig.ini中设置（默认：C）")]
-        public int FireSwordToggleKey
+
+
+        private DefaultDropdown<InputKey> _fireSwordToggleKey = GetDropdownOptions<InputKey>((int)InputKey.C);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_sword_toggle_key}Toggle Key", Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_toggle_key_hint}Key to toggle your own fire sword.")]
+        public DefaultDropdown<InputKey> FireSwordToggleKey
         {
-            get => (int)FireLordConfig.FireSwordToggleKey;
-            set => FireLordConfig.FireSwordToggleKey = (InputKey)value;
+            get => _fireSwordToggleKey;
+            set
+            {
+                _fireSwordToggleKey = value;
+                FireLordConfig.FireSwordToggleKey = value.SelectedValue;
+            }
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}火焰剑设置")]
-        [SettingProperty("{=FireLord_menu_ignite_player_body}点燃玩家身体（无伤害）", requireRestart: false,
-            hintText: "{=FireLord_menu_ignite_player_body_hint}是否在开启火焰剑的同时点燃玩家的身体，只有视觉效果，不造成伤害")]
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyBool("{=FireLord_menu_ignite_player_body}Ignite Player Body (No Damage)", Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignite_player_body_hint}Whether to light player's body when fire sword activated, only visuals and no damages.")]
         public bool IgnitePlayerBody
         {
             get => FireLordConfig.IgnitePlayerBody;
             set => FireLordConfig.IgnitePlayerBody = value;
         }
-        
-        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}火焰剑设置")]
-        [SettingProperty("{=FireLord_menu_fire_sword_light_radius}火焰剑光照范围", 0, 20, requireRestart: false,
-            hintText: "{=FireLord_menu_fire_sword_light_radius_hint}火焰剑的光源照射的半径")]
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_lights}Lights", Order = 5)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_sword_light_radius}Light Radius", 0, 20, Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_light_radius_hint}The radius of the point light attched to the sword.")]
         public int FireSwordLightRadius
         {
             get => (int)FireLordConfig.FireSwordLightRadius;
             set => FireLordConfig.FireSwordLightRadius = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}火焰剑设置")]
-        [SettingProperty("{=FireLord_menu_fire_sword_light_intensity}火焰剑光照强度", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_fire_sword_light_intensity_hint}火焰剑的光源强度，决定亮度")]
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_lights}Lights", Order = 5)]
+        [SettingPropertyInteger("{=FireLord_menu_fire_sword_light_intensity}Light Intensity", 0, 200, Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_light_intensity_hint}The lighting intensity of the point light attched to the sword.")]
         public int FireSwordLightIntensity
         {
             get => (int)FireLordConfig.FireSwordLightIntensity;
             set => FireLordConfig.FireSwordLightIntensity = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignite_target_with_fire_arrow}允许火箭点燃敌人", requireRestart: false,
-            hintText: "{=FireLord_menu_ignite_target_with_fire_arrow_hint}是否允许使用火箭点燃敌人")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_gerneral}General", Order = 6)]
+        [SettingPropertyBool("{=FireLord_menu_ignite_target_with_fire_arrow}Allow Ignition With Fire Arrow", Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignite_target_with_fire_arrow_hint}Allow fire arrows to ignite enemies.")]
         public bool IgniteTargetWithFireArrow
         {
             get => FireLordConfig.IgniteTargetWithFireArrow;
             set => FireLordConfig.IgniteTargetWithFireArrow = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignite_target_with_fire_sword}允许火焰剑点燃敌人", requireRestart: false,
-        hintText: "{=FireLord_menu_ignite_target_with_fire_sword_hint}是否允许使用火焰剑点燃敌人")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_gerneral}General", Order = 6)]
+        [SettingPropertyBool("{=FireLord_menu_ignite_target_with_fire_sword}Allow Ignition With Fire Sword", Order = 2, RequireRestart = false,
+        HintText = "{=FireLord_menu_ignite_target_with_fire_sword_hint}Allow fire sword to ignite enemies on hit.")]
         public bool IgniteTargetWithFireSword
         {
             get => FireLordConfig.IgniteTargetWithFireSword;
             set => FireLordConfig.IgniteTargetWithFireSword = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_bar_max}点燃槽上限", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_bar_max_hint}当点燃槽满了的时候，点燃这名敌人")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_bar}Ignition Bar", Order = 7)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_bar_max}Ignition Bar Max", 0, 200, Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_bar_max_hint}One will burn when his ignition bar is filled.")]
         public int IgnitionBarMax
         {
             get => (int)FireLordConfig.IgnitionBarMax;
             set => FireLordConfig.IgnitionBarMax = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_per_fire_arrow}火箭每箭点燃值", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_per_fire_arrow_hint}每只火箭击中敌人时，增加的点燃槽数值")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_bar}Ignition Bar", Order = 7)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_per_fire_arrow}Ignition Per Fire Arrow", 0, 200, Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_per_fire_arrow_hint}How much will one's ignition bar raise when hit by a fire arrow. Reduced by half when blocked.")]
         public int IgnitionPerFireArrow
         {
             get => (int)FireLordConfig.IgnitionPerFireArrow;
             set => FireLordConfig.IgnitionPerFireArrow = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_per_fire_sword_hit}火焰剑每击点燃值", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_per_fire_sword_hit_hint}火焰剑每次击中敌人时，增加的点燃槽数值（被格挡时减半）")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_bar}Ignition Bar", Order = 7)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_per_fire_sword_hit}Ignition Per Fire Sword Hit", 0, 200, Order = 3, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_per_fire_sword_hit_hint}How much will one's ignition bar raise when hit by fire sword. Reduced by half when blocked.")]
         public int IgnitionPerFireSwordHit
         {
             get => (int)FireLordConfig.IgnitionPerFireSwordHit;
             set => FireLordConfig.IgnitionPerFireSwordHit = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_drop_per_second}每秒点燃值降低", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_drop_per_second_hint}点燃槽随时间自动减少，每秒降低的数值")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_bar}Ignition Bar", Order = 7)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_drop_per_second}Ignition Bar Drop Per Second", 0, 200, Order = 4, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_drop_per_second_hint}How much will the ignition bar drop per second.")]
         public int IgnitionDropPerSecond
         {
             get => (int)FireLordConfig.IgnitionDropPerSecond;
             set => FireLordConfig.IgnitionDropPerSecond = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_duration}燃烧持续时间", 0, 30, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_duration_hint}被点燃的人的持续燃烧的时间")]
-        public int IgnitionDurationInSecond
-        {
-            get => (int)FireLordConfig.IgnitionDurationInSecond;
-            set => FireLordConfig.IgnitionDurationInSecond = value;
-        }
-
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_light_radius}燃烧光照范围", 0, 20, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_light_radius_hint}被点燃的人身上的光源的光照半径")]
-        public int IgnitionLightRadius
-        {
-            get => (int)FireLordConfig.IgnitionLightRadius;
-            set => FireLordConfig.IgnitionLightRadius = value;
-        }
-
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_light_intensity}燃烧光照强度", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_light_intensity_hint}被点燃的人身上的光源的光照强度，决定亮度")]
-        public int IgnitionLightIntensity
-        {
-            get => (int)FireLordConfig.IgnitionLightIntensity;
-            set => FireLordConfig.IgnitionLightIntensity = value;
-        }
-
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_deal_damage}启用燃烧伤害", requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_deal_damage_hint}是否对点燃的人造成燃烧伤害")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_damages}Damages", Order = 8)]
+        [SettingPropertyBool("{=FireLord_menu_ignition_deal_damage}Enable Ignition Damage", Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_deal_damage_hint}Whether to deal burning damages with ignition.")]
         public bool IgnitionDealDamage
         {
             get => FireLordConfig.IgnitionDealDamage;
             set => FireLordConfig.IgnitionDealDamage = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_Friendly_Fire}启用友军伤害", requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_Friendly_Fire_hint}是否允许被队友点燃")]
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_damages}Damages", Order = 8)]
+        [SettingPropertyBool("{=FireLord_menu_ignition_Friendly_Fire}Enable Friendly Fire", Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_Friendly_Fire_hint}Whether to enable ignition by friendly fire.")]
         public bool IgnitionFriendlyFire
         {
             get => FireLordConfig.IgnitionFriendlyFire;
             set => FireLordConfig.IgnitionFriendlyFire = value;
         }
 
-        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}点燃设置")]
-        [SettingProperty("{=FireLord_menu_ignition_damage_per_second}每秒燃烧伤害", 0, 200, requireRestart: false,
-            hintText: "{=FireLord_menu_ignition_damage_per_second_hint}当敌人被点燃时，每秒受到的燃烧伤害")]
+
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_damages}Damages", Order = 8)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_duration}Ignition Duration", 0, 30, "0s", Order = 3, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_duration_hint}For how many seconds will the target burns.")]
+        public int IgnitionDurationInSecond
+        {
+            get => (int)FireLordConfig.IgnitionDurationInSecond;
+            set => FireLordConfig.IgnitionDurationInSecond = value;
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_damages}Damages", Order = 8)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_damage_per_second}Ignition Damage Per Second", 0, 200, Order = 4, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_damage_per_second_hint}The burning damage taken per second.")]
         public int IgnitionDamagePerSecond
         {
             get => (int)FireLordConfig.IgnitionDamagePerSecond;
             set => FireLordConfig.IgnitionDamagePerSecond = value;
         }
 
-        public FireLordSettings():base()
+
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_lights}Lights", Order = 9)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_light_radius}Light Radius", 0, 20, Order = 1, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_light_radius_hint}The radius of the the point light attched to the burning target.")]
+        public int IgnitionLightRadius
         {
-            AllowedUnitType = (int)FireLordConfig.AllowedUnitType;
-            UseFireArrowsAtDay = FireLordConfig.UseFireArrowsAtDay;
-            UseFireArrowsAtNight = FireLordConfig.UseFireArrowsAtNight;
-            UseFireArrowsAtSiege = FireLordConfig.UseFireArrowsAtSiege;
+            get => (int)FireLordConfig.IgnitionLightRadius;
+            set => FireLordConfig.IgnitionLightRadius = value;
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_ignition_settings}Ignition Settings/{=FireLord_menu_ignition_lights}Lights", Order = 9)]
+        [SettingPropertyInteger("{=FireLord_menu_ignition_light_intensity}Light Intensity", 0, 200, Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_ignition_light_intensity_hint}The lighting intensity of the the point light attched to the burning target.")]
+        public int IgnitionLightIntensity
+        {
+            get => (int)FireLordConfig.IgnitionLightIntensity;
+            set => FireLordConfig.IgnitionLightIntensity = value;
+        }
+
+        public void Save()
+        {
+            FireLordConfig.FireArrowToggleKey = FireArrowToggleKey.SelectedValue;
+            InformationManager.DisplayMessage(new InformationMessage(FireArrowToggleKey.SelectedValue.ToString()));
+            FireLordConfig.AllowedUnitType = AllowedUnitType.SelectedValue;
+            FireLordConfig.FireArrowAllowedTimeStart = FireArrowAllowedTimeStart;
+            FireLordConfig.FireArrowAllowedTimeEnd = FireArrowAllowedTimeEnd;
+            FireLordConfig.UseFireArrowsOnlyInSiege = UseFireArrowsOnlyInSiege;
+            FireLordConfig.AllowFireThrownWeapon = AllowFireThrownWeapon;
+            FireLordConfig.ChancesOfFireArrow = ChancesOfFireArrow * 100f;
+            FireLordConfig.StickedArrowsBurningTime = StickedArrowsBurningTime;
+            FireLordConfig.FireArrowLightRadius = FireArrowLightRadius;
+            FireLordConfig.FireArrowLightIntensity = FireArrowLightIntensity;
+            FireLordConfig.FireSwordToggleKey = FireSwordToggleKey.SelectedValue;
+            FireLordConfig.FireSwordLightRadius = FireSwordLightRadius;
+            FireLordConfig.FireSwordLightIntensity = FireSwordLightIntensity;
+            FireLordConfig.IgniteTargetWithFireArrow = IgniteTargetWithFireArrow;
+            FireLordConfig.IgniteTargetWithFireSword = IgniteTargetWithFireSword;
+            FireLordConfig.IgnitionBarMax = IgnitionBarMax;
+            FireLordConfig.IgnitionPerFireArrow = IgnitionPerFireArrow;
+            FireLordConfig.IgnitionPerFireSwordHit = IgnitionPerFireSwordHit;
+            FireLordConfig.IgnitionDropPerSecond = IgnitionDropPerSecond;
+            FireLordConfig.IgnitionDurationInSecond = IgnitionDurationInSecond;
+            FireLordConfig.IgnitionLightRadius = IgnitionLightRadius;
+            FireLordConfig.IgnitionLightIntensity = IgnitionLightIntensity;
+            FireLordConfig.IgnitionDealDamage = IgnitionDealDamage;
+            FireLordConfig.IgnitionFriendlyFire = IgnitionFriendlyFire;
+            FireLordConfig.IgnitionDamagePerSecond = IgnitionDamagePerSecond;
+        }
+
+        public void Load()
+        {
+            for (int i = 0; i < FireArrowToggleKey.Count; i++)
+            {
+                if (FireArrowToggleKey[i] == FireLordConfig.FireArrowToggleKey)
+                {
+                    FireArrowToggleKey.SelectedIndex = i;
+                }
+            }
+            AllowedUnitType.SelectedIndex = (int)FireLordConfig.AllowedUnitType;
+            FireArrowAllowedTimeStart = FireLordConfig.FireArrowAllowedTimeStart;
+            FireArrowAllowedTimeEnd = FireLordConfig.FireArrowAllowedTimeEnd;
+            UseFireArrowsOnlyInSiege = FireLordConfig.UseFireArrowsOnlyInSiege;
             AllowFireThrownWeapon = FireLordConfig.AllowFireThrownWeapon;
-            ChancesOfFireArrow = (int)FireLordConfig.ChancesOfFireArrow;
+            ChancesOfFireArrow = FireLordConfig.ChancesOfFireArrow / 100f;
             StickedArrowsBurningTime = (int)FireLordConfig.StickedArrowsBurningTime;
             FireArrowLightRadius = (int)FireLordConfig.FireArrowLightRadius;
             FireArrowLightIntensity = (int)FireLordConfig.FireArrowLightIntensity;
-            FireSwordToggleKey = (int)FireLordConfig.FireSwordToggleKey;
+
+            for (int i = 0; i < FireSwordToggleKey.Count; i++)
+            {
+                if (FireSwordToggleKey[i] == FireLordConfig.FireSwordToggleKey)
+                {
+                    FireSwordToggleKey.SelectedIndex = i;
+                }
+            }
+
             FireSwordLightRadius = (int)FireLordConfig.FireSwordLightRadius;
             FireSwordLightIntensity = (int)FireLordConfig.FireSwordLightIntensity;
             IgniteTargetWithFireArrow = FireLordConfig.IgniteTargetWithFireArrow;
@@ -283,6 +345,22 @@ namespace FireLord.Settings
             IgnitionDealDamage = FireLordConfig.IgnitionDealDamage;
             IgnitionFriendlyFire = FireLordConfig.IgnitionFriendlyFire;
             IgnitionDamagePerSecond = FireLordConfig.IgnitionDamagePerSecond;
+        }
+
+        public FireLordSettings():base()
+        {
+            FireLordConfig.Init();
+            FireLordSubModule.LoadSettingsTimer = new Timer(MBCommon.GetTime(MBCommon.TimeType.Application), 3, false);
+        }
+        
+        private static DefaultDropdown<T> GetDropdownOptions<T>(int selectedIndex)
+        {
+            List<T> enumList = new List<T>();
+            foreach (T t in Enum.GetValues(typeof(T)))
+            {
+                enumList.Add(t);
+            }
+            return new DefaultDropdown<T>(enumList, selectedIndex);
         }
     }
 }

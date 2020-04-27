@@ -22,6 +22,22 @@ namespace FireLord.Settings
             All = 6
         }
 
+
+
+        private static InputKey _fireArrowToggleKey;
+        public static InputKey FireArrowToggleKey
+        {
+            get
+            {
+                return _fireArrowToggleKey;
+            }
+            set
+            {
+                _fireArrowToggleKey = value;
+                iniHelper.Set("FireArrowToggleKey", value.ToString());
+            }
+        }
+
         private static UnitType _allowedUnitType;
         public static UnitType AllowedUnitType
         {
@@ -36,44 +52,44 @@ namespace FireLord.Settings
             }
         }
 
-        private static bool _useFireArrowsAtDay;
-        public static bool UseFireArrowsAtDay
+        private static int _fireArrowAllowedTimeStart;
+        public static int FireArrowAllowedTimeStart
         {
             get {
-                return _useFireArrowsAtDay;
+                return _fireArrowAllowedTimeStart;
             }
             set
             {
-                _useFireArrowsAtDay = value;
-                iniHelper.SetBool("UseFireArrowsAtDay", value);
+                _fireArrowAllowedTimeStart = value;
+                iniHelper.SetInt("FireArrowAllowedTimeStart", value);
             }
         }
 
-        private static bool _useFireArrowsAtNight;
-        public static bool UseFireArrowsAtNight
+        private static int _fireArrowAllowedTimeEnd;
+        public static int FireArrowAllowedTimeEnd
         {
             get
             {
-                return _useFireArrowsAtNight;
+                return _fireArrowAllowedTimeEnd;
             }
             set
             {
-                _useFireArrowsAtNight = value;
-                iniHelper.SetBool("UseFireArrowsAtNight", value);
+                _fireArrowAllowedTimeEnd = value;
+                iniHelper.SetInt("FireArrowAllowedTimeEnd", value);
             }
         }
 
-        private static bool _useFireArrowsAtSiege;
-        public static bool UseFireArrowsAtSiege
+        private static bool _useFireArrowsOnlyInSiege;
+        public static bool UseFireArrowsOnlyInSiege
         {
             get
             {
-                return _useFireArrowsAtSiege;
+                return _useFireArrowsOnlyInSiege;
             }
             set
             {
-                _useFireArrowsAtSiege = value;
-                iniHelper.SetBool("UseFireArrowsAtSiege", value);
+                _useFireArrowsOnlyInSiege = value;
+                iniHelper.SetBool("UseFireArrowsOnlyInSiege", value);
             }
         }
 
@@ -421,12 +437,13 @@ namespace FireLord.Settings
 
         public static void Init()
         {
-            if(!File.Exists(ConfigPath))
+            if (!File.Exists(ConfigPath))
             {
+                FireArrowToggleKey = InputKey.V;
                 AllowedUnitType = UnitType.All;
-                UseFireArrowsAtDay = true;
-                UseFireArrowsAtNight = true;
-                UseFireArrowsAtSiege = true;
+                FireArrowAllowedTimeStart = 0;
+                FireArrowAllowedTimeEnd = 24;
+                UseFireArrowsOnlyInSiege = false;
                 AllowFireThrownWeapon = true;
                 ChancesOfFireArrow = 100;
                 StickedArrowsBurningTime = 8f;
@@ -454,10 +471,11 @@ namespace FireLord.Settings
             }
             else
             {
+                _fireArrowToggleKey = (InputKey)Enum.Parse(typeof(InputKey), iniHelper.Get("FireArrowToggleKey", "V"));
                 _allowedUnitType = (UnitType)iniHelper.GetInt("AllowedUnitType", 6);
-                _useFireArrowsAtDay = iniHelper.GetBool("UseFireArrowsAtDay", true); ;
-                _useFireArrowsAtNight = iniHelper.GetBool("UseFireArrowsAtNight", true);
-                _useFireArrowsAtSiege = iniHelper.GetBool("UseFireArrowsAtSiege", true);
+                _fireArrowAllowedTimeStart = iniHelper.GetInt("FireArrowAllowedTimeStart", 0); ;
+                _fireArrowAllowedTimeEnd = iniHelper.GetInt("FireArrowAllowedTimeEnd", 24);
+                _useFireArrowsOnlyInSiege = iniHelper.GetBool("UseFireArrowsOnlyInSiege", true);
                 _allowFireThrownWeapon = iniHelper.GetBool("AllowFireThrownWeapon", true);
                 _chancesOfFireArrow = iniHelper.GetFloat("ChancesOfFireArrow", 100);
                 _stickedArrowsBurningTime = iniHelper.GetFloat("StickedArrowsBurningTime", 8);
