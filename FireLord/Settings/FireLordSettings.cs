@@ -259,6 +259,7 @@ namespace FireLord.Settings
 
         public FireLordSettings():base()
         {
+            FireLordConfig.Init();
             AllowedUnitType = (int)FireLordConfig.AllowedUnitType;
             UseFireArrowsAtDay = FireLordConfig.UseFireArrowsAtDay;
             UseFireArrowsAtNight = FireLordConfig.UseFireArrowsAtNight;

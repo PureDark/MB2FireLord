@@ -13,7 +13,6 @@ namespace FireLord
 
         protected override void OnSubModuleLoad()
         {
-            FireLordConfig.Init();
         }
 
         public override void OnMissionBehaviourInitialize(Mission mission)

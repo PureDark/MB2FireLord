@@ -246,9 +246,9 @@ namespace FireLord
             allowed &= (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.All) 
                 || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Player && shooterAgent == Agent.Main)
                 || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Heroes && shooterAgent.IsHero)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Companions && shooterAgent.IsHero && shooterAgent.Team.IsPlayerTeam)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.Team.IsPlayerAlly)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Enemies && !shooterAgent.Team.IsPlayerAlly);
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Companions && shooterAgent.IsHero && shooterAgent.IsFriendOf(Agent.Main))
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.IsFriendOf(Agent.Main))
+                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Enemies && shooterAgent.IsEnemyOf(Agent.Main));
 
             allowed &= shooterAgent == Agent.Main || MBRandom.RandomFloatRanged(100) < FireLordConfig.ChancesOfFireArrow;
 
