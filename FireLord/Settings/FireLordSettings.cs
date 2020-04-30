@@ -17,6 +17,43 @@ namespace FireLord.Settings
         public override string Id { get; set; } = InstanceID;
         public override string ModName => "Fire Lord";
         public override string ModuleFolderName => FireLordSubModule.ModuleName;
+        public override string Format => "firelord";
+
+        [Version("e1.0.0", 200)]
+        [Version("e1.0.1", 200)]
+        [Version("e1.0.2", 200)]
+        [Version("e1.0.3", 200)]
+        [Version("e1.0.4", 200)]
+        [Version("e1.0.5", 200)]
+        [Version("e1.0.6", 200)]
+        [Version("e1.0.7", 200)]
+        [Version("e1.0.8", 200)]
+        [Version("e1.0.9", 200)]
+        [Version("e1.0.10", 200)]
+        [Version("e1.0.11", 200)]
+        [Version("e1.1.0", 200)]
+        [Version("e1.2.0", 200)]
+        [Version("e1.2.1", 200)]
+        [Version("e1.3.0", 200)]
+
+        public class FireLordFormat : ISettingsFormat
+        {
+            public IEnumerable<string> Extensions => new string[] { "firelord" };
+
+            public SettingsBase Load(SettingsBase settings, string path)
+            {
+                if (settings is FireLordSettings fireLordSettings)
+                    fireLordSettings.Load();
+                return settings;
+            }
+
+            public bool Save(SettingsBase settings, string path)
+            {
+                if (settings is FireLordSettings fireLordSettings)
+                    fireLordSettings.Save();
+                return true;
+            }
+        }
 
 
         private DefaultDropdown<InputKey> _fireArrowToggleKey = GetDropdownOptions<InputKey>((int)InputKey.V);
@@ -34,23 +71,8 @@ namespace FireLord.Settings
             }
         }
 
-        private DefaultDropdown<FireLordConfig.UnitType> _allowedUnitType = GetDropdownOptions<FireLordConfig.UnitType>((int)FireLordConfig.AllowedUnitType);
-
         [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
-        [SettingPropertyDropdown("{=FireLord_menu_allowed_unit_type}Fire Arrow Allowed Units", Order = 2, RequireRestart = false,
-            HintText = "{=FireLord_menu_allowed_unit_type_hint}What type of units are allowed to use fire arrows.")]
-        public DefaultDropdown<FireLordConfig.UnitType> AllowedUnitType
-        {
-            get => _allowedUnitType;
-            set
-            {
-                _allowedUnitType = value;
-                FireLordConfig.AllowedUnitType = value.SelectedValue;
-            }
-        }
-
-        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
-        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_start}Fire Arrow Allowed Time Start", 0, 24, Order = 3, RequireRestart = false,
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_start}Fire Arrow Allowed Time Start", 0, 24, Order = 2, RequireRestart = false,
             HintText = "{=FireLord_menu_fire_arrow_allowed_time_start_hint}Starting hour of fire arrow allowed time interval. E.g. Start=6 and End=18 for enabling at day.")]
         public int FireArrowAllowedTimeStart
         {
@@ -59,7 +81,7 @@ namespace FireLord.Settings
         }
 
         [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
-        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_end}Fire Arrow Allowed Time End", 0, 24, Order = 4, RequireRestart = false,
+        [SettingPropertyInteger("{=FireLord_menu_fire_arrow_allowed_time_end}Fire Arrow Allowed Time End", 0, 24, Order = 3, RequireRestart = false,
             HintText = "{=FireLord_menu_fire_arrow_allowed_time_end_hint}Ending hour of fire arrow allowed time interval. E.g. Start=20 and End=6 for enabling at night.")]
         public int FireArrowAllowedTimeEnd
         {
@@ -68,7 +90,7 @@ namespace FireLord.Settings
         }
 
         [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
-        [SettingPropertyBool("{=FireLord_menu_use_fire_arrow_only_in_siege}Enable Fire Arrow Only In Siege", Order = 5, RequireRestart = false,
+        [SettingPropertyBool("{=FireLord_menu_use_fire_arrow_only_in_siege}Enable Fire Arrow Only In Siege", Order = 4, RequireRestart = false,
             HintText = "{=FireLord_menu_use_fire_arrow_only_in_siege_hint}Only allow units to use fire arrows in a siege battle.")]
         public bool UseFireArrowsOnlyInSiege
         {
@@ -77,12 +99,60 @@ namespace FireLord.Settings
         }
 
         [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
-        [SettingPropertyBool("{=FireLord_menu_allow_fire_thrown_weapon}Thrown Weapon On Fire", Order = 6, RequireRestart = false,
+        [SettingPropertyBool("{=FireLord_menu_allow_fire_thrown_weapon}Thrown Weapon On Fire", Order = 5, RequireRestart = false,
             HintText = "{=FireLord_menu_allow_fire_thrown_weapon_hint}Whether to light thrown weapons on fire as well.")]
         public bool AllowFireThrownWeapon
         {
             get => FireLordConfig.AllowFireThrownWeapon;
             set => FireLordConfig.AllowFireThrownWeapon = value;
+        }
+
+        private DefaultDropdown<FireLordConfig.UnitType> _fireArrowAllowedUnitType = GetDropdownOptions<FireLordConfig.UnitType>((int)FireLordConfig.FireArrowAllowedUnitType);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_arrow_allowed_unit_type}Fire Arrow Allowed Units", Order = 6, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_allowed_unit_type_hint}What type of units are allowed to use fire arrows.")]
+        public DefaultDropdown<FireLordConfig.UnitType> FireArrowAllowedUnitType
+        {
+            get => _fireArrowAllowedUnitType;
+            set
+            {
+                _fireArrowAllowedUnitType = value;
+                FireLordConfig.FireArrowAllowedUnitType = value.SelectedValue;
+            }
+        }
+
+        private DefaultDropdown<FireLordConfig.WhitelistType> _fireArrowWhitelistType = GetDropdownOptions<FireLordConfig.WhitelistType>((int)FireLordConfig.FireArrowWhitelistType);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_arrow_whitelist_type}Fire Arrow Whitelist Type", Order = 7, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_whitelist_type_hint}Whitelist type, Disabled=No whitelist. This is extra to allowed units.")]
+        public DefaultDropdown<FireLordConfig.WhitelistType> FireArrowWhitelistType
+        {
+            get => _fireArrowWhitelistType;
+            set
+            {
+                _fireArrowWhitelistType = value;
+                FireLordConfig.FireArrowWhitelistType = value.SelectedValue;
+            }
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyText("{=FireLord_menu_fire_arrow_troops_whitelist}Fire Arrow Troops Whitelist", Order = 8, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_troops_whitelist_hint}A list of troops who is allowed to use fire arrows. Add 'main_hero' as player.")]
+        public string FireArrowTroopsWhitelist
+        {
+            get => string.Join(",", FireLordConfig.FireArrowTroopsWhitelist);
+            set => FireLordConfig.FireArrowTroopsWhitelist = new List<string>(value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_gerneral}General", Order = 1)]
+        [SettingPropertyText("{=FireLord_menu_fire_arrow_items_whitelist}Fire Arrow Items Whitelist", Order = 8, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_arrow_troops_whitelist_hint}A list of items which is recognized as fire arrows. Supports both bows and arrows.")]
+        public string FireArrowItemsWhitelist
+        {
+            get => string.Join(",", FireLordConfig.FireArrowItemsWhitelist);
+            set => FireLordConfig.FireArrowItemsWhitelist = new List<string>(value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         [SettingPropertyGroup("{=FireLord_menu_fire_arrow_settings}Fire Arrow Settings/{=FireLord_menu_fire_arrow_numerical}Numerical Setup", Order = 2)]
@@ -138,13 +208,72 @@ namespace FireLord.Settings
         }
 
         [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
-        [SettingPropertyBool("{=FireLord_menu_ignite_player_body}Ignite Player Body (No Damage)", Order = 2, RequireRestart = false,
+        [SettingPropertyBool("{=FireLord_menu_player_fire_sword_default_on}Player Fire Sword Default On", Order = 2, RequireRestart = false,
+            HintText = "{=FireLord_menu_player_fire_sword_default_on_hint}Ignite Player's weapon by default when starting a battle.")]
+        public bool PlayerFireSwordDefaultOn
+        {
+            get => FireLordConfig.PlayerFireSwordDefaultOn;
+            set => FireLordConfig.PlayerFireSwordDefaultOn = value;
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyBool("{=FireLord_menu_ignite_player_body}Ignite Player Body (No Damage)", Order = 3, RequireRestart = false,
             HintText = "{=FireLord_menu_ignite_player_body_hint}Whether to light player's body when fire sword activated, only visuals and no damages.")]
         public bool IgnitePlayerBody
         {
             get => FireLordConfig.IgnitePlayerBody;
             set => FireLordConfig.IgnitePlayerBody = value;
         }
+        
+
+        private DefaultDropdown<FireLordConfig.UnitType> _fireSwordAllowedUnitType = GetDropdownOptions<FireLordConfig.UnitType>((int)FireLordConfig.FireSwordAllowedUnitType);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_sword_allowed_unit_type}Fire Sword Allowed Units", Order = 4, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_allowed_unit_type_hint}What type of units are allowed to use fire weapons.")]
+        public DefaultDropdown<FireLordConfig.UnitType> FireSwordAllowedUnitType
+        {
+            get => _fireSwordAllowedUnitType;
+            set
+            {
+                _fireSwordAllowedUnitType = value;
+                FireLordConfig.FireSwordAllowedUnitType = value.SelectedValue;
+            }
+        }
+
+        private DefaultDropdown<FireLordConfig.WhitelistType> _fireSwordWhitelistType = GetDropdownOptions<FireLordConfig.WhitelistType>((int)FireLordConfig.FireArrowWhitelistType);
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyDropdown("{=FireLord_menu_fire_sword_whitelist_type}Fire Arrow Whitelist Type", Order = 5, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_whitelist_type_hint}Whitelist type, Disabled=No whitelist. This is extra to allowed units.")]
+        public DefaultDropdown<FireLordConfig.WhitelistType> FireSwordWhitelistType
+        {
+            get => _fireSwordWhitelistType;
+            set
+            {
+                _fireSwordWhitelistType = value;
+                FireLordConfig.FireSwordWhitelistType = value.SelectedValue;
+            }
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyText("{=FireLord_menu_fire_sword_troops_whitelist}Fire Sword Troops Whitelist", Order = 6, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_troops_whitelist_hint}A list of troops who is allowed to use fire weapon.")]
+        public string FireSwordTroopsWhitelist
+        {
+            get => string.Join(",", FireLordConfig.FireSwordTroopsWhitelist);
+            set => FireLordConfig.FireSwordTroopsWhitelist = new List<string>(value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_gerneral}General", Order = 4)]
+        [SettingPropertyText("{=FireLord_menu_fire_sword_items_whitelist}Fire Sword Items Whitelist", Order = 7, RequireRestart = false,
+            HintText = "{=FireLord_menu_fire_sword_troops_whitelist_hint}A list of items which is recognized as fire weapons. Supports both all types of melee weapons.")]
+        public string FireSwordItemsWhitelist
+        {
+            get => string.Join(",", FireLordConfig.FireSwordItemsWhitelist);
+            set => FireLordConfig.FireSwordItemsWhitelist = new List<string>(value.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+        }
+
 
         [SettingPropertyGroup("{=FireLord_menu_fire_sword_settings}Fire Sword Settings/{=FireLord_menu_fire_sword_lights}Lights", Order = 5)]
         [SettingPropertyInteger("{=FireLord_menu_fire_sword_light_radius}Light Radius", 0, 20, Order = 1, RequireRestart = false,
@@ -277,17 +406,30 @@ namespace FireLord.Settings
         public void Save()
         {
             FireLordConfig.FireArrowToggleKey = FireArrowToggleKey.SelectedValue;
-            InformationManager.DisplayMessage(new InformationMessage(FireArrowToggleKey.SelectedValue.ToString()));
-            FireLordConfig.AllowedUnitType = AllowedUnitType.SelectedValue;
             FireLordConfig.FireArrowAllowedTimeStart = FireArrowAllowedTimeStart;
             FireLordConfig.FireArrowAllowedTimeEnd = FireArrowAllowedTimeEnd;
             FireLordConfig.UseFireArrowsOnlyInSiege = UseFireArrowsOnlyInSiege;
             FireLordConfig.AllowFireThrownWeapon = AllowFireThrownWeapon;
+
+            FireLordConfig.FireArrowAllowedUnitType = FireArrowAllowedUnitType.SelectedValue;
+            FireLordConfig.FireArrowWhitelistType = FireArrowWhitelistType.SelectedValue;
+            FireLordConfig.FireArrowTroopsWhitelist = new List<string>(FireArrowTroopsWhitelist.Split(','));
+            FireLordConfig.FireArrowItemsWhitelist = new List<string>(FireArrowItemsWhitelist.Split(','));
+
             FireLordConfig.ChancesOfFireArrow = ChancesOfFireArrow * 100f;
             FireLordConfig.StickedArrowsBurningTime = StickedArrowsBurningTime;
             FireLordConfig.FireArrowLightRadius = FireArrowLightRadius;
             FireLordConfig.FireArrowLightIntensity = FireArrowLightIntensity;
+
             FireLordConfig.FireSwordToggleKey = FireSwordToggleKey.SelectedValue;
+            FireLordConfig.PlayerFireSwordDefaultOn = PlayerFireSwordDefaultOn;
+            FireLordConfig.IgnitePlayerBody = IgnitePlayerBody;
+
+            FireLordConfig.FireSwordAllowedUnitType = FireSwordAllowedUnitType.SelectedValue;
+            FireLordConfig.FireSwordWhitelistType = FireSwordWhitelistType.SelectedValue;
+            FireLordConfig.FireSwordTroopsWhitelist = new List<string>(FireSwordTroopsWhitelist.Split(','));
+            FireLordConfig.FireSwordItemsWhitelist = new List<string>(FireSwordItemsWhitelist.Split(','));
+
             FireLordConfig.FireSwordLightRadius = FireSwordLightRadius;
             FireLordConfig.FireSwordLightIntensity = FireSwordLightIntensity;
             FireLordConfig.IgniteTargetWithFireArrow = IgniteTargetWithFireArrow;
@@ -313,11 +455,15 @@ namespace FireLord.Settings
                     FireArrowToggleKey.SelectedIndex = i;
                 }
             }
-            AllowedUnitType.SelectedIndex = (int)FireLordConfig.AllowedUnitType;
             FireArrowAllowedTimeStart = FireLordConfig.FireArrowAllowedTimeStart;
             FireArrowAllowedTimeEnd = FireLordConfig.FireArrowAllowedTimeEnd;
             UseFireArrowsOnlyInSiege = FireLordConfig.UseFireArrowsOnlyInSiege;
             AllowFireThrownWeapon = FireLordConfig.AllowFireThrownWeapon;
+            FireArrowAllowedUnitType.SelectedIndex = (int)FireLordConfig.FireArrowAllowedUnitType;
+            FireArrowWhitelistType.SelectedIndex = (int)FireLordConfig.FireArrowWhitelistType;
+            FireArrowTroopsWhitelist = string.Join(",", FireLordConfig.FireArrowTroopsWhitelist);
+            FireArrowItemsWhitelist = string.Join(",", FireLordConfig.FireArrowItemsWhitelist);
+
             ChancesOfFireArrow = FireLordConfig.ChancesOfFireArrow / 100f;
             StickedArrowsBurningTime = (int)FireLordConfig.StickedArrowsBurningTime;
             FireArrowLightRadius = (int)FireLordConfig.FireArrowLightRadius;
@@ -330,6 +476,14 @@ namespace FireLord.Settings
                     FireSwordToggleKey.SelectedIndex = i;
                 }
             }
+
+            PlayerFireSwordDefaultOn = FireLordConfig.PlayerFireSwordDefaultOn;
+            IgnitePlayerBody = FireLordConfig.IgnitePlayerBody;
+
+            FireSwordAllowedUnitType.SelectedIndex = (int)FireLordConfig.FireSwordAllowedUnitType;
+            FireSwordWhitelistType.SelectedIndex = (int)FireLordConfig.FireSwordWhitelistType;
+            FireSwordTroopsWhitelist = string.Join(",", FireLordConfig.FireSwordTroopsWhitelist);
+            FireSwordItemsWhitelist = string.Join(",", FireLordConfig.FireSwordItemsWhitelist);
 
             FireSwordLightRadius = (int)FireLordConfig.FireSwordLightRadius;
             FireSwordLightIntensity = (int)FireLordConfig.FireSwordLightIntensity;
@@ -350,7 +504,7 @@ namespace FireLord.Settings
         public FireLordSettings():base()
         {
             FireLordConfig.Init();
-            FireLordSubModule.LoadSettingsTimer = new Timer(MBCommon.GetTime(MBCommon.TimeType.Application), 3, false);
+            Load();
         }
         
         private static DefaultDropdown<T> GetDropdownOptions<T>(int selectedIndex)

@@ -1,5 +1,6 @@
 ﻿using FireLord.Utils;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
@@ -22,7 +23,16 @@ namespace FireLord.Settings
             All = 6
         }
 
+        public enum WhitelistType
+        {
+            Disabled = 0,
+            Troops = 1,
+            Items = 2
+        }
 
+        /***************
+         * 火箭设置 - 综合
+         ***************/
 
         private static InputKey _fireArrowToggleKey;
         public static InputKey FireArrowToggleKey
@@ -35,20 +45,6 @@ namespace FireLord.Settings
             {
                 _fireArrowToggleKey = value;
                 iniHelper.Set("FireArrowToggleKey", value.ToString());
-            }
-        }
-
-        private static UnitType _allowedUnitType;
-        public static UnitType AllowedUnitType
-        {
-            get
-            {
-                return _allowedUnitType;
-            }
-            set
-            {
-                _allowedUnitType = value;
-                iniHelper.SetInt("AllowedUnitType", (int)value);
             }
         }
 
@@ -107,6 +103,67 @@ namespace FireLord.Settings
             }
         }
 
+        private static UnitType _fireArrowAllowedUnitType;
+        public static UnitType FireArrowAllowedUnitType
+        {
+            get
+            {
+                return _fireArrowAllowedUnitType;
+            }
+            set
+            {
+                _fireArrowAllowedUnitType = value;
+                iniHelper.SetInt("FireArrowAllowedUnitType", (int)value);
+            }
+        }
+
+        private static WhitelistType _fireArrowWhitelistType = WhitelistType.Disabled;
+        public static WhitelistType FireArrowWhitelistType
+        {
+            get
+            {
+                return _fireArrowWhitelistType;
+            }
+            set
+            {
+                _fireArrowWhitelistType = value;
+                iniHelper.SetInt("FireArrowWhitelistType", (int)value);
+            }
+        }
+
+        private static List<string> _fireArrowTroopsWhitelist = new List<string>();
+        public static List<string> FireArrowTroopsWhitelist
+        {
+            get
+            {
+                return _fireArrowTroopsWhitelist;
+            }
+            set
+            {
+                _fireArrowTroopsWhitelist = value;
+                iniHelper.Set("FireArrowTroopsWhitelist", string.Join(",", value.ToArray()));
+            }
+        }
+
+        private static List<string> _fireArrowItemsWhitelist = new List<string>();
+        public static List<string> FireArrowItemsWhitelist
+        {
+            get
+            {
+                return _fireArrowItemsWhitelist;
+            }
+            set
+            {
+                _fireArrowItemsWhitelist = value;
+                iniHelper.Set("FireArrowItemsWhitelist", string.Join(",", value.ToArray()));
+            }
+        }
+
+
+        /***************
+         * 火箭设置 - 数值
+         ***************/
+
         private static float _chancesOfFireArrow;
         public static float ChancesOfFireArrow
         {
@@ -134,6 +191,12 @@ namespace FireLord.Settings
                 iniHelper.SetInt("StickedArrowsBurningTime", (int)value);
             }
         }
+
+        
+
+        /***************
+         * 火箭设置 - 光源
+         ***************/
 
         private static Vec3 _fireArrowLightColor;
         public static Vec3 FireArrowLightColor
@@ -179,6 +242,11 @@ namespace FireLord.Settings
             }
         }
 
+
+        /***************
+         * 火焰剑设置 - 综合
+         ***************/
+
         private static InputKey _fireSwordToggleKey;
         public static InputKey FireSwordToggleKey
         {
@@ -190,6 +258,20 @@ namespace FireLord.Settings
             {
                 _fireSwordToggleKey = value;
                 iniHelper.Set("FireSwordToggleKey", value.ToString());
+            }
+        }
+
+        private static bool _playerFireSwordDefaultOn;
+        public static bool PlayerFireSwordDefaultOn
+        {
+            get
+            {
+                return _playerFireSwordDefaultOn;
+            }
+            set
+            {
+                _playerFireSwordDefaultOn = value;
+                iniHelper.SetBool("PlayerFireSwordDefaultOn", value);
             }
         }
 
@@ -206,6 +288,67 @@ namespace FireLord.Settings
                 iniHelper.SetBool("IgnitePlayerBody", value);
             }
         }
+
+        private static UnitType _fireSwordAllowedUnitType;
+        public static UnitType FireSwordAllowedUnitType
+        {
+            get
+            {
+                return _fireSwordAllowedUnitType;
+            }
+            set
+            {
+                _fireSwordAllowedUnitType = value;
+                iniHelper.SetInt("FireSwordAllowedUnitType", (int)value);
+            }
+        }
+
+        private static WhitelistType _fireSwordWhitelistType = WhitelistType.Disabled;
+        public static WhitelistType FireSwordWhitelistType
+        {
+            get
+            {
+                return _fireSwordWhitelistType;
+            }
+            set
+            {
+                _fireSwordWhitelistType = value;
+                iniHelper.SetInt("FireSwordWhitelistType", (int)value);
+            }
+        }
+
+        private static List<string> _fireSwordTroopsWhitelist = new List<string>();
+        public static List<string> FireSwordTroopsWhitelist
+        {
+            get
+            {
+                return _fireSwordTroopsWhitelist;
+            }
+            set
+            {
+                _fireSwordTroopsWhitelist = value;
+                iniHelper.Set("FireSwordTroopsWhitelist", string.Join(",", value.ToArray()));
+            }
+        }
+
+        private static List<string> _fireSwordItemsWhitelist = new List<string>();
+        public static List<string> FireSwordItemsWhitelist
+        {
+            get
+            {
+                return _fireSwordItemsWhitelist;
+            }
+            set
+            {
+                _fireSwordItemsWhitelist = value;
+                iniHelper.Set("FireSwordItemsWhitelist", string.Join(",", value.ToArray()));
+            }
+        }
+
+
+        /***************
+         * 火焰剑设置 - 光源
+         ***************/
 
         private static Vec3 _fireSwordLightColor;
         public static Vec3 FireSwordLightColor
@@ -251,6 +394,11 @@ namespace FireLord.Settings
             }
         }
 
+
+        /***************
+         * 点燃设置 - 综合
+         ***************/
+
         private static bool _igniteTargetWithFireArrow;
         public static bool IgniteTargetWithFireArrow
         {
@@ -278,6 +426,11 @@ namespace FireLord.Settings
                 iniHelper.SetBool("IgniteTargetWithFireSword", value);
             }
         }
+
+
+        /***************
+         * 点燃设置 - 点燃槽
+         ***************/
 
         private static float _ignitionBarMax;
         public static float IgnitionBarMax
@@ -349,6 +502,11 @@ namespace FireLord.Settings
             }
         }
 
+
+        /***************
+         * 点燃设置 - 光源
+         ***************/
+
         private static Vec3 _ignitionLightColor;
         public static Vec3 IgnitionLightColor
         {
@@ -392,6 +550,11 @@ namespace FireLord.Settings
                 iniHelper.SetFloat("IgnitionLightIntensity", value);
             }
         }
+        
+
+        /***************
+         * 点燃设置 - 伤害
+         ***************/
 
         private static bool _ignitionDealDamage;
         public static bool IgnitionDealDamage
@@ -440,31 +603,47 @@ namespace FireLord.Settings
             if (!File.Exists(ConfigPath))
             {
                 FireArrowToggleKey = InputKey.V;
-                AllowedUnitType = UnitType.All;
                 FireArrowAllowedTimeStart = 0;
                 FireArrowAllowedTimeEnd = 24;
                 UseFireArrowsOnlyInSiege = false;
                 AllowFireThrownWeapon = true;
+                FireArrowAllowedUnitType = UnitType.All;
+                FireArrowWhitelistType = WhitelistType.Disabled;
+                FireArrowTroopsWhitelist = new List<string>();
+                FireArrowItemsWhitelist = new List<string>();
+
                 ChancesOfFireArrow = 100;
                 StickedArrowsBurningTime = 8f;
+
                 FireArrowLightColor = new Vec3(0.847f, 0.541f, 0f);
                 FireArrowLightRadius = 3f;
                 FireArrowLightIntensity = 120f;
+
                 FireSwordToggleKey = InputKey.C;
+                PlayerFireSwordDefaultOn = false;
                 IgnitePlayerBody = false;
+                FireSwordAllowedUnitType = UnitType.All;
+                FireSwordWhitelistType = WhitelistType.Disabled;
+                FireSwordTroopsWhitelist = new List<string>();
+                FireSwordItemsWhitelist = new List<string>();
+
                 FireSwordLightColor = new Vec3(0.847f, 0.541f, 0f);
                 FireSwordLightRadius = 5f;
                 FireSwordLightIntensity = 85f;
+
                 IgniteTargetWithFireArrow = true;
                 IgniteTargetWithFireSword = true;
+
                 IgnitionBarMax = 100f;
                 IgnitionPerFireArrow = 75f;
                 IgnitionPerFireSwordHit = 100f;
                 IgnitionDropPerSecond = 10f;
-                IgnitionDurationInSecond = 5f;
+
                 IgnitionLightColor = new Vec3(0.847f, 0.541f, 0f);
                 IgnitionLightRadius = 7f;
                 IgnitionLightIntensity = 125f;
+
+                IgnitionDurationInSecond = 5f;
                 IgnitionDealDamage = true;
                 IgnitionFriendlyFire = false;
                 IgnitionDamagePerSecond = 10;
@@ -472,40 +651,56 @@ namespace FireLord.Settings
             else
             {
                 _fireArrowToggleKey = (InputKey)Enum.Parse(typeof(InputKey), iniHelper.Get("FireArrowToggleKey", "V"));
-                _allowedUnitType = (UnitType)iniHelper.GetInt("AllowedUnitType", 6);
-                _fireArrowAllowedTimeStart = iniHelper.GetInt("FireArrowAllowedTimeStart", 0); ;
+                _fireArrowAllowedTimeStart = iniHelper.GetInt("FireArrowAllowedTimeStart", 0);
                 _fireArrowAllowedTimeEnd = iniHelper.GetInt("FireArrowAllowedTimeEnd", 24);
                 _useFireArrowsOnlyInSiege = iniHelper.GetBool("UseFireArrowsOnlyInSiege", true);
                 _allowFireThrownWeapon = iniHelper.GetBool("AllowFireThrownWeapon", true);
+                _fireArrowAllowedUnitType = (UnitType)iniHelper.GetInt("FireArrowAllowedUnitType", (int)UnitType.All);
+                _fireArrowWhitelistType = (WhitelistType)iniHelper.GetInt("FireArrowWhitelistType", (int)WhitelistType.Disabled);
+                _fireArrowTroopsWhitelist = new List<string>(iniHelper.Get("FireArrowTroopsWhitelist", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                _fireArrowItemsWhitelist = new List<string>(iniHelper.Get("FireArrowItemsWhitelist", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+
                 _chancesOfFireArrow = iniHelper.GetFloat("ChancesOfFireArrow", 100);
                 _stickedArrowsBurningTime = iniHelper.GetFloat("StickedArrowsBurningTime", 8);
+
                 float R = iniHelper.GetInt("FireArrowLightColorR", 216) / 255f;
                 float G = iniHelper.GetInt("FireArrowLightColorG", 138) / 255f;
                 float B = iniHelper.GetInt("FireArrowLightColorB", 0) / 255f;
                 _fireArrowLightColor = new Vec3(R, G, B);
                 _fireArrowLightRadius = iniHelper.GetFloat("FireArrowLightRadius", 3f);
                 _fireArrowLightIntensity = iniHelper.GetFloat("FireArrowLightIntensity", 120f);
+
                 _fireSwordToggleKey = (InputKey)Enum.Parse(typeof(InputKey), iniHelper.Get("FireSwordToggleKey", "C"));
+                _playerFireSwordDefaultOn = iniHelper.GetBool("PlayerFireSwordDefaultOn", false);
                 _ignitePlayerBody = iniHelper.GetBool("IgnitePlayerBody", false);
+                _fireSwordAllowedUnitType = (UnitType)iniHelper.GetInt("FireSwordAllowedUnitType", (int)UnitType.All);
+                _fireSwordWhitelistType = (WhitelistType)iniHelper.GetInt("FireSwordWhitelistType", (int)WhitelistType.Disabled);
+                _fireSwordTroopsWhitelist = new List<string>(iniHelper.Get("FireSwordTroopsWhitelist", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+                _fireSwordItemsWhitelist = new List<string>(iniHelper.Get("FireSwordItemsWhitelist", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
+
                 R = iniHelper.GetInt("FireSwordLightColorR", 216) / 255f;
                 G = iniHelper.GetInt("FireSwordLightColorG", 138) / 255f;
                 B = iniHelper.GetInt("FireSwordLightColorB", 0) / 255f;
                 _fireSwordLightColor = new Vec3(R, G, B);
                 _fireSwordLightRadius = iniHelper.GetFloat("FireSwordLightRadius", 5f);
                 _fireSwordLightIntensity = iniHelper.GetFloat("FireSwordLightIntensity", 85f);
+
                 _igniteTargetWithFireArrow = iniHelper.GetBool("IgniteTargetWithFireArrow", true);
                 _igniteTargetWithFireSword = iniHelper.GetBool("IgniteTargetWithFireSword", true);
+
                 _ignitionBarMax = iniHelper.GetFloat("IgnitionBarMax", 100f);
                 _ignitionPerFireArrow = iniHelper.GetFloat("IgnitionPerFireArrow", 75f);
                 _ignitionPerFireSwordHit = iniHelper.GetFloat("IgnitionPerFireSwordHit", 100f);
                 _ignitionDropPerSecond = iniHelper.GetFloat("IgnitionDropPerSecond", 10f);
-                _ignitionDurationInSecond = iniHelper.GetFloat("IgnitionDurationInSecond", 5f);
+
                 R = iniHelper.GetInt("IgnitionLightColorR", 216) / 255f;
                 G = iniHelper.GetInt("IgnitionLightColorG", 138) / 255f;
                 B = iniHelper.GetInt("IgnitionLightColorB", 0) / 255f;
                 _ignitionLightColor = new Vec3(R, G, B);
                 _ignitionLightRadius = iniHelper.GetFloat("IgnitionLightRadius", 7f);
                 _ignitionLightIntensity = iniHelper.GetFloat("IgnitionLightIntensity", 125f);
+
+                _ignitionDurationInSecond = iniHelper.GetFloat("IgnitionDurationInSecond", 5f);
                 _ignitionDealDamage = iniHelper.GetBool("IgnitionDealDamage", true);
                 _ignitionFriendlyFire = iniHelper.GetBool("IgnitionFriendlyFire", true);
                 _ignitionDamagePerSecond = iniHelper.GetInt("IgnitionDamagePerSecond", 10);

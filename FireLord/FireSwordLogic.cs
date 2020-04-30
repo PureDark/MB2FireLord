@@ -36,7 +36,7 @@ namespace FireLord
                 // 判断是否是抽出新武器
                 if(lastWieldedWeaponEmpty && !wieldedWeapon.Weapons.IsEmpty())
                 {
-                    if (agent != Agent.Main || _playerFireSwordEnabled)
+                    if (!agent.IsMainAgent || _playerFireSwordEnabled)
                     {
                         timer = new MissionTimer(0.1f);
                     }
@@ -72,6 +72,30 @@ namespace FireLord
                     MissionWeapon wieldedWeapon = agent.WieldedWeapon;
                     if (wieldedWeapon.Weapons.IsEmpty())
                         return;
+                    
+                    bool allowed = (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.All)
+                        || (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.Player && agent == Agent.Main)
+                        || (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.Heroes && agent.IsHero)
+                        || (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.Companions && agent.IsHero && agent.Team.IsPlayerTeam)
+                        || (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.Allies && agent.Team.IsPlayerAlly)
+                        || (FireLordConfig.FireSwordAllowedUnitType == FireLordConfig.UnitType.Enemies && !agent.Team.IsPlayerAlly);
+
+                    if (!allowed)
+                    {
+                        switch (FireLordConfig.FireSwordWhitelistType)
+                        {
+                            case FireLordConfig.WhitelistType.Troops:
+                                allowed = FireLordConfig.FireSwordTroopsWhitelist.Contains(agent.Character.StringId);
+                                break;
+                            case FireLordConfig.WhitelistType.Items:
+                                allowed = FireLordConfig.FireSwordItemsWhitelist.Contains(wieldedWeapon.PrimaryItem.ToString());
+                                break;
+                        }
+                    }
+
+                    if (!allowed)
+                        return;
+
                     int length = wieldedWeapon.GetWeaponStatsData()[0].WeaponLength;
                     int num = (int)Math.Round(length / 10f);
                     MBAgentVisuals agentVisuals = agent.AgentVisuals;
@@ -118,7 +142,7 @@ namespace FireLord
                     }
                     skeleton.AddComponentToBone(Game.Current.HumanMonster.MainHandItemBoneIndex, light);
 
-                    if (agent == Agent.Main && FireLordConfig.IgnitePlayerBody)
+                    if (agent.IsMainAgent && FireLordConfig.IgnitePlayerBody)
                     {
                         int count = skeleton.GetBoneCount();
                         for (byte i = 0; i < count; i++)
@@ -165,6 +189,7 @@ namespace FireLord
         {
             _ignitionlogic = ignitionlogic;
             _ignitionlogic.OnAgentDropItem += SetDropLockForAgent;
+            _playerFireSwordEnabled = FireLordConfig.PlayerFireSwordDefaultOn;
         }
 
         public void SetDropLockForAgent(Agent agent, bool dropLock)
@@ -186,10 +211,11 @@ namespace FireLord
                 agent.OnAgentWieldedItemChange += agentFireSwordData.OnAgentWieldedItemChange;
                 agent.OnAgentHealthChanged += agentFireSwordData.OnAgentHealthChanged;
                 agentFireSwordData.lastWieldedWeaponEmpty = agent.WieldedWeapon.Weapons.IsEmpty();
-                if (agent != Agent.Main || _playerFireSwordEnabled)
+                if (!agent.IsMainAgent || _playerFireSwordEnabled)
                 {
                     agentFireSwordData.timer = new MissionTimer(0.5f);
                 }
+                
                 _agentFireSwordData.Add(agent, agentFireSwordData);
             }
         }
@@ -205,18 +231,38 @@ namespace FireLord
             foreach(KeyValuePair<Agent, AgentFireSwordData> item in _agentFireSwordData)
             {
                 AgentFireSwordData fireSwordData = item.Value;
-                if (fireSwordData.timer != null && fireSwordData.timer.Check())
+                if(item.Key.IsMainAgent && !_playerFireSwordEnabled)
+                {
+                    fireSwordData.timer = null;
+                }
+                else if (fireSwordData.timer != null && fireSwordData.timer.Check())
                 {
                     fireSwordData.SetFireSwordEnable(true);
                     fireSwordData.timer = null;
                 }
-                else if(item.Key == Agent.Main && Input.IsKeyPressed(FireLordConfig.FireSwordToggleKey))
+            }
+            if (Input.IsKeyPressed(FireLordConfig.FireSwordToggleKey) && Agent.Main != null)
+            {
+                _playerFireSwordEnabled = !_playerFireSwordEnabled;
+                if (_agentFireSwordData.ContainsKey(Agent.Main))
                 {
-                    _playerFireSwordEnabled = !_playerFireSwordEnabled;
+                    AgentFireSwordData fireSwordData = _agentFireSwordData[Agent.Main];
                     fireSwordData.SetFireSwordEnable(_playerFireSwordEnabled);
                     fireSwordData.timer = null;
                 }
             }
+            //if (Input.IsKeyPressed(InputKey.K) && Agent.Main != null)
+            //{
+            //    MissionWeapon wieldedWeapon = Agent.Main.WieldedWeapon;
+            //    MissionWeapon wieldedOffHandWeapon = Agent.Main.WieldedOffhandWeapon;
+            //    if (!wieldedWeapon.IsEmpty)
+            //    {
+            //        InformationManager.DisplayMessage(new InformationMessage("wieldedWeapon : " + wieldedWeapon.PrimaryItem.ToString()));
+            //        WeaponData ammoData =  wieldedWeapon.GetAmmoWeaponData();
+            //        if(ammoData.IsValid())
+            //            InformationManager.DisplayMessage(new InformationMessage("ammoData : " + ammoData.GetItemObject().ToString()));
+            //    }
+            //}
         }
 
         public override void OnScoreHit(Agent victim, Agent attacker, int affectorWeaponKind, bool isBlocked, float damage, float movementSpeedDamageModifier, float hitDistance, AgentAttackType attackType, float shotDifficulty, int weaponCurrentUsageIndex)

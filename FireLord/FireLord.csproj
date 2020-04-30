@@ -33,8 +33,8 @@
     <Reference Include="0Harmony, Version=2.0.0.10, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Lib.Harmony.2.0.0.10\lib\net472\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="MBOptionScreen.v2.0.6, Version=2.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Bannerlord.MBOptionScreen.2.0.6\lib\net472\MBOptionScreen.v2.0.6.dll</HintPath>
+    <Reference Include="MBOptionScreen.v2.0.10, Version=2.0.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bannerlord.MBOptionScreen.2.0.10\lib\net472\MBOptionScreen.v2.0.10.dll</HintPath>
     </Reference>
     <Reference Include="StoryMode">
       <HintPath>..\..\..\..\..\StoryMode\bin\Win64_Shipping_Client\StoryMode.dll</HintPath>
@@ -156,6 +156,7 @@
     <Reference Include="TaleWorlds.Network">
       <HintPath>..\..\..\..\..\..\bin\Win64_Shipping_Client\TaleWorlds.Network.dll</HintPath>
     </Reference>
+    <Reference Include="TaleWorlds.ObjectSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     <Reference Include="TaleWorlds.PlatformService">
       <HintPath>..\..\..\..\..\..\bin\Win64_Shipping_Client\TaleWorlds.PlatformService.dll</HintPath>
     </Reference>
@@ -206,6 +207,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy ".\FireLord.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"
-copy ".\MBOptionScreen.v2.0.6.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"</PostBuildEvent>
+copy ".\MBOptionScreen.v2.0.10.dll" "F:\SteamLibrary\steamapps\common\Mount &amp; Blade II Bannerlord\Modules\FireLord\bin\Win64_Shipping_Client"</PostBuildEvent>
   </PropertyGroup>
 </Project>

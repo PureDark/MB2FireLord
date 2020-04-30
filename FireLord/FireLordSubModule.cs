@@ -11,21 +11,6 @@ namespace FireLord
         public static string ModuleName => "FireLord";
         public static string Version => "1.1.0";
 
-        public static Timer LoadSettingsTimer;
-
-        protected override void OnSubModuleLoad()
-        {
-        }
-
-        protected override void OnApplicationTick(float dt)
-        {
-            if(LoadSettingsTimer != null && LoadSettingsTimer.Check(MBCommon.GetTime(MBCommon.TimeType.Application)))
-            {
-                LoadSettingsTimer = null;
-                FireLordSettings.Instance.Load();
-            }
-        }
-
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
             FireLordSettings.Instance.Save();

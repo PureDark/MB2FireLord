@@ -38,13 +38,13 @@ namespace FireLord
         {
             float timeOfDay = Mission.Current.Scene.TimeOfDay;
 
-            if(FireLordConfig.FireArrowAllowedTimeStart < FireLordConfig.FireArrowAllowedTimeEnd)
+            if(FireLordConfig.FireArrowAllowedTimeStart <= FireLordConfig.FireArrowAllowedTimeEnd)
                 _fireArrowEnabled = (timeOfDay >= FireLordConfig.FireArrowAllowedTimeStart && timeOfDay <= FireLordConfig.FireArrowAllowedTimeEnd);
             else
                 _fireArrowEnabled = (timeOfDay >= FireLordConfig.FireArrowAllowedTimeStart || timeOfDay <= FireLordConfig.FireArrowAllowedTimeEnd);
 
-            _fireArrowEnabled &= FireLordConfig.UseFireArrowsOnlyInSiege?
-                Mission.Current.MissionTeamAIType == Mission.MissionTeamAITypeEnum.Siege
+            _fireArrowEnabled &= FireLordConfig.UseFireArrowsOnlyInSiege
+                ?Mission.Current.MissionTeamAIType == Mission.MissionTeamAITypeEnum.Siege
                 :true;
         }
 
@@ -124,14 +124,34 @@ namespace FireLord
                     break;
             }
 
-            allowed &= (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.All) 
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Player && shooterAgent == Agent.Main)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Heroes && shooterAgent.IsHero)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Companions && shooterAgent.IsHero && shooterAgent.Team.IsPlayerTeam)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.Team.IsPlayerAlly)
-                || (FireLordConfig.AllowedUnitType == FireLordConfig.UnitType.Enemies && !shooterAgent.Team.IsPlayerAlly);
+            allowed &= (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.All) 
+                || (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.Player && shooterAgent == Agent.Main)
+                || (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.Heroes && shooterAgent.IsHero)
+                || (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.Companions && shooterAgent.IsHero && shooterAgent.Team.IsPlayerTeam)
+                || (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.Allies && shooterAgent.Team.IsPlayerAlly)
+                || (FireLordConfig.FireArrowAllowedUnitType == FireLordConfig.UnitType.Enemies && !shooterAgent.Team.IsPlayerAlly);
 
             allowed &= shooterAgent == Agent.Main || MBRandom.RandomFloatRanged(100) < FireLordConfig.ChancesOfFireArrow;
+
+            if (!allowed)
+            {
+                switch (FireLordConfig.FireArrowWhitelistType)
+                {
+                    case FireLordConfig.WhitelistType.Troops:
+                        allowed = FireLordConfig.FireArrowTroopsWhitelist.Contains(shooterAgent.Character.StringId);
+                        break;
+                    case FireLordConfig.WhitelistType.Items:
+                        MissionWeapon wieldedWeapon = shooterAgent.WieldedWeapon;
+                        if (!wieldedWeapon.IsEmpty)
+                        {
+                            allowed = FireLordConfig.FireArrowItemsWhitelist.Contains(wieldedWeapon.PrimaryItem.ToString());
+                            WeaponData ammoData = wieldedWeapon.GetAmmoWeaponData();
+                            if (ammoData.IsValid())
+                                allowed |= FireLordConfig.FireArrowItemsWhitelist.Contains(ammoData.GetItemObject().ToString());
+                        }
+                        break;
+                }
+            }
 
             if (allowed)
             {
@@ -204,7 +224,7 @@ namespace FireLord
                 {
                     if (FireLordConfig.IgnitionFriendlyFire || attacker.IsEnemyOf(victim))
                     {
-                        bool isBlocked = attachedBoneIndex < 0;
+                        bool isBlocked = attachedBoneIndex == 18;
                         float firebarAdd = (isBlocked) ? FireLordConfig.IgnitionPerFireArrow / 2f : FireLordConfig.IgnitionPerFireArrow;
                         _ignitionlogic.IncreaseAgentFireBar(attacker, victim, firebarAdd);
                     }
