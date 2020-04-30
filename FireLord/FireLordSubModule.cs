@@ -1,7 +1,6 @@
 ﻿using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
-using FireLord.Settings;
 
 namespace FireLord
 {
@@ -13,7 +12,6 @@ namespace FireLord
 
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
-            FireLordSettings.Instance.Save();
             IgnitionLogic ignitionLogic = new IgnitionLogic();
             mission.AddMissionBehaviour(ignitionLogic);
             mission.AddMissionBehaviour(new FireArrowLogic(ignitionLogic));
