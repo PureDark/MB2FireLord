@@ -17,43 +17,43 @@ namespace FireLord.Settings
         public override string Id { get; set; } = InstanceID;
         public override string ModName => "Fire Lord";
         public override string ModuleFolderName => FireLordSubModule.ModuleName;
-        public override string Format => "firelord";
+        //public override string Format => "firelord";
 
-        [Version("e1.0.0", 200)]
-        [Version("e1.0.1", 200)]
-        [Version("e1.0.2", 200)]
-        [Version("e1.0.3", 200)]
-        [Version("e1.0.4", 200)]
-        [Version("e1.0.5", 200)]
-        [Version("e1.0.6", 200)]
-        [Version("e1.0.7", 200)]
-        [Version("e1.0.8", 200)]
-        [Version("e1.0.9", 200)]
-        [Version("e1.0.10", 200)]
-        [Version("e1.0.11", 200)]
-        [Version("e1.1.0", 200)]
-        [Version("e1.2.0", 200)]
-        [Version("e1.2.1", 200)]
-        [Version("e1.3.0", 200)]
+        //[Version("e1.0.0", 200)]
+        //[Version("e1.0.1", 200)]
+        //[Version("e1.0.2", 200)]
+        //[Version("e1.0.3", 200)]
+        //[Version("e1.0.4", 200)]
+        //[Version("e1.0.5", 200)]
+        //[Version("e1.0.6", 200)]
+        //[Version("e1.0.7", 200)]
+        //[Version("e1.0.8", 200)]
+        //[Version("e1.0.9", 200)]
+        //[Version("e1.0.10", 200)]
+        //[Version("e1.0.11", 200)]
+        //[Version("e1.1.0", 200)]
+        //[Version("e1.2.0", 200)]
+        //[Version("e1.2.1", 200)]
+        //[Version("e1.3.0", 200)]
 
-        public class FireLordFormat : ISettingsFormat
-        {
-            public IEnumerable<string> Extensions => new string[] { "firelord" };
+        //public class FireLordFormat : ISettingsFormat
+        //{
+        //    public IEnumerable<string> Extensions => new string[] { "firelord" };
 
-            public SettingsBase Load(SettingsBase settings, string path)
-            {
-                if (settings is FireLordSettings fireLordSettings)
-                    fireLordSettings.Load();
-                return settings;
-            }
+        //    public SettingsBase Load(SettingsBase settings, string path)
+        //    {
+        //        if (settings is FireLordSettings fireLordSettings)
+        //            fireLordSettings.Load();
+        //        return settings;
+        //    }
 
-            public bool Save(SettingsBase settings, string path)
-            {
-                if (settings is FireLordSettings fireLordSettings)
-                    fireLordSettings.Save();
-                return true;
-            }
-        }
+        //    public bool Save(SettingsBase settings, string path)
+        //    {
+        //        if (settings is FireLordSettings fireLordSettings)
+        //            fireLordSettings.Save();
+        //        return true;
+        //    }
+        //}
 
 
         private DefaultDropdown<InputKey> _fireArrowToggleKey = GetDropdownOptions<InputKey>((int)InputKey.V);
@@ -501,12 +501,12 @@ namespace FireLord.Settings
             IgnitionDamagePerSecond = FireLordConfig.IgnitionDamagePerSecond;
         }
 
-        public FireLordSettings():base()
+        public FireLordSettings() : base()
         {
             FireLordConfig.Init();
-            Load();
+            FireLordSubModule.LoadSettingsTimer = new Timer(MBCommon.GetTime(MBCommon.TimeType.Application), 3, false);
         }
-        
+
         private static DefaultDropdown<T> GetDropdownOptions<T>(int selectedIndex)
         {
             List<T> enumList = new List<T>();

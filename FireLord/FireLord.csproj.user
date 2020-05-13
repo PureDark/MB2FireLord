@@ -4,6 +4,6 @@
     <StartAction>Program</StartAction>
     <StartProgram>F:\SteamLibrary\SteamApps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\Bannerlord.exe</StartProgram>
     <StartWorkingDirectory>F:\SteamLibrary\SteamApps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\</StartWorkingDirectory>
-    <StartArguments>/singleplayer _MODULES_%2aNative%2aSandBox%2aSandBoxCore%2aStoryMode%2aCustomBattle%2aEnhancedMission%2aModLib%2aFireLord%2a_MODULES_</StartArguments>
+    <StartArguments>/singleplayer _MODULES_%2aNative%2aSandBox%2aSandBoxCore%2aStoryMode%2aCustomBattle%2aFireLord%2a_MODULES_</StartArguments>
   </PropertyGroup>
 </Project>
