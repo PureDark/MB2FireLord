@@ -53,10 +53,17 @@ namespace FireLord
                 AgentFireDatas.Add(victim, fireData);
             }
         }
-
+        
+        public bool IsInBattle()
+        {
+            return (Mission.Mode == MissionMode.Battle || Mission.Mode == MissionMode.Duel
+                || Mission.Mode == MissionMode.Stealth || Mission.Mode == MissionMode.Tournament);
+        }
 
         public override void OnMissionTick(float dt)
         {
+            if (!IsInBattle())
+                return;
             //计算每个agent的着火条，满了就点燃
             if (AgentFireDatas.Count > 0)
             {
@@ -184,6 +191,8 @@ namespace FireLord
         {
             Blow blow = new Blow(attacker.Index);
             blow.DamageType = DamageTypes.Blunt;
+            blow.BlowFlag = BlowFlags.ShrugOff;
+            blow.BlowFlag |= BlowFlags.NoSound;
             blow.BoneIndex = victim.Monster.HeadLookDirectionBoneIndex;
             blow.Position = victim.Position;
             blow.Position.z = blow.Position.z + victim.GetEyeGlobalHeight();

@@ -158,7 +158,8 @@ namespace FireLord
                     dropLock = true;
                     agent.DropItem(index);
                     SpawnedItemEntity spawnedItemEntity = wieldedWeaponEntity.GetFirstScriptOfType<SpawnedItemEntity>();
-                    agent.OnItemPickup(spawnedItemEntity, EquipmentIndex.None, out bool removeItem);
+                    if(spawnedItemEntity!=null)
+                        agent.OnItemPickup(spawnedItemEntity, EquipmentIndex.None, out bool removeItem);
                     dropLock = false;
 
                     this.light = light;
@@ -200,10 +201,18 @@ namespace FireLord
                 fireSwordData.dropLock = dropLock;
             }
         }
-
         
+        public bool IsInBattle()
+        {
+            return (Mission.Mode == MissionMode.Battle || Mission.Mode == MissionMode.Duel
+                || Mission.Mode == MissionMode.Stealth || Mission.Mode == MissionMode.Tournament);
+        }
+
         public override void OnAgentCreated(Agent agent)
         {
+            if (!IsInBattle())
+                return;
+
             if (agent.IsHuman && !_agentFireSwordData.ContainsKey(agent))
             {
                 AgentFireSwordData agentFireSwordData = new AgentFireSwordData();
@@ -213,7 +222,7 @@ namespace FireLord
                 agentFireSwordData.lastWieldedWeaponEmpty = agent.WieldedWeapon.Weapons.IsEmpty();
                 if (!agent.IsMainAgent || _playerFireSwordEnabled)
                 {
-                    agentFireSwordData.timer = new MissionTimer(0.5f);
+                    agentFireSwordData.timer = new MissionTimer(1f);
                 }
                 
                 _agentFireSwordData.Add(agent, agentFireSwordData);
@@ -222,13 +231,17 @@ namespace FireLord
 
         public override void OnAgentDeleted(Agent agent)
         {
+            if (!IsInBattle())
+                return;
             _agentFireSwordData.Remove(agent);
         }
 
 
         public override void OnMissionTick(float dt)
         {
-            foreach(KeyValuePair<Agent, AgentFireSwordData> item in _agentFireSwordData)
+            if (!IsInBattle())
+                return;
+            foreach (KeyValuePair<Agent, AgentFireSwordData> item in _agentFireSwordData)
             {
                 AgentFireSwordData fireSwordData = item.Value;
                 if(item.Key.IsMainAgent && !_playerFireSwordEnabled)
@@ -267,6 +280,8 @@ namespace FireLord
 
         public override void OnScoreHit(Agent victim, Agent attacker, int affectorWeaponKind, bool isBlocked, float damage, float movementSpeedDamageModifier, float hitDistance, AgentAttackType attackType, float shotDifficulty, int weaponCurrentUsageIndex)
         {
+            if (!IsInBattle())
+                return;
             _agentFireSwordData.TryGetValue(attacker, out AgentFireSwordData fireSwordData);
             if (fireSwordData == null)
                 return;

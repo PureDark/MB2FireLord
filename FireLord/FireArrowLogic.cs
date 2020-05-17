@@ -48,8 +48,17 @@ namespace FireLord
                 :true;
         }
 
+        public bool IsInBattle()
+        {
+            return (Mission.Mode == MissionMode.Battle || Mission.Mode == MissionMode.Duel
+                || Mission.Mode == MissionMode.Stealth || Mission.Mode == MissionMode.Tournament);
+        }
+
         public override void OnMissionTick(float dt)
         {
+            if (!IsInBattle())
+                return;
+
             if (!_initialized && Mission.Current != null && Agent.Main != null)
             {
                 _initialized = true;
@@ -104,7 +113,7 @@ namespace FireLord
 
         public override void OnAgentShootMissile(Agent shooterAgent, EquipmentIndex weaponIndex, Vec3 position, Vec3 velocity, Mat3 orientation, bool hasRigidBody, int forcedMissileIndex)
         {
-            if (!_fireArrowEnabled)
+            if (!IsInBattle() || !_fireArrowEnabled)
                 return;
 
             bool allowed = false;
@@ -175,7 +184,7 @@ namespace FireLord
 
         public override void OnMissileCollisionReaction(Mission.MissileCollisionReaction collisionReaction, Agent attacker, Agent victim, sbyte attachedBoneIndex)
         {
-            if (!_fireArrowEnabled)
+            if (!IsInBattle() || !_fireArrowEnabled)
                 return;
 
             var existMissiles = new Dictionary<Mission.Missile, ParticleSystem>();
