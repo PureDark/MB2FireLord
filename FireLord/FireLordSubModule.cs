@@ -9,7 +9,7 @@ namespace FireLord
     {
         public static string ModName => "Fire Lord";
         public static string ModuleName => "FireLord";
-        public static string Version => "1.1.2";
+        public static string Version => "1.1.3";
 
         public static Timer LoadSettingsTimer;
 
@@ -27,7 +27,6 @@ namespace FireLord
         public override void OnMissionBehaviourInitialize(Mission mission)
         {
             FireLordSettings.Instance.Save();
-            //InformationManager.DisplayMessage(new InformationMessage(mission.CombatType.ToString()));
             IgnitionLogic ignitionLogic = new IgnitionLogic();
             mission.AddMissionBehaviour(ignitionLogic);
             mission.AddMissionBehaviour(new FireArrowLogic(ignitionLogic));

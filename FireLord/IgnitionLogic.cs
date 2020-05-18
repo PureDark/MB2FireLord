@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
@@ -81,14 +82,16 @@ namespace FireLord
                             if (fireData.attacker == Agent.Main)
                             {
                                 TextObject text = GameTexts.FindText("ui_delivered_burning_damage", null);
-                                text.SetTextVariable("DAMAGE", blow.InflictedDamage);
-                                InformationManager.DisplayMessage(new InformationMessage(text.ToString()));
+                                //text.SetTextVariable("DAMAGE", blow.InflictedDamage);
+                                string damageText = Regex.Replace(text.ToString(), @"\d+", blow.InflictedDamage + "");
+                                InformationManager.DisplayMessage(new InformationMessage(damageText));
                             }
                             else if (agent == Agent.Main)
                             {
                                 TextObject text = GameTexts.FindText("ui_received_burning_damage", null);
-                                text.SetTextVariable("DAMAGE", blow.InflictedDamage);
-                                InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Color.ConvertStringToColor("#D65252FF")));
+                                //text.SetTextVariable("DAMAGE", blow.InflictedDamage);
+                                string damageText = Regex.Replace(text.ToString(), @"\d+", blow.InflictedDamage + "");
+                                InformationManager.DisplayMessage(new InformationMessage(damageText, Color.ConvertStringToColor("#D65252FF")));
                             }
                         }
                         if (fireData.burningTimer.Check())
